@@ -234,8 +234,10 @@ public class ModifyAppointmentController implements Initializable {
             urlCol.setCellValueFactory(new PropertyValueFactory<>("url"));
             startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
             endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
-
+            
+            //populates table
             appointmentTableView.setItems(appointmentTable); 
+            
     }    
     
 }
