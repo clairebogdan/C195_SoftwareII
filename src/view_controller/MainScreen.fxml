@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.MainScreenController">
+   <children>
+      <Label fx:id="mainScreenLabel" layoutX="245.0" layoutY="33.0" text="Appointment Management System" textFill="WHITE">
+         <font>
+            <Font size="19.0" />
+         </font>
+      </Label>
+      <Label fx:id="mainMenuLabel" layoutX="325.0" layoutY="57.0" text="Main Menu" textFill="WHITE">
+         <font>
+            <Font size="29.0" />
+         </font>
+      </Label>
+      <Button fx:id="logoutButton" layoutX="7.0" layoutY="4.0" mnemonicParsing="false" onAction="#handleLogoutButton" prefHeight="18.0" prefWidth="59.0" text="Logout">
+         <font>
+            <Font size="10.0" />
+         </font></Button>
+      <AnchorPane layoutY="168.0" prefHeight="332.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
+         <children>
+            <ButtonBar layoutX="278.0" layoutY="19.0" prefHeight="40.0" prefWidth="200.0">
+               <buttons>
+                  <RadioButton fx:id="weeklyRadio" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="Weekly" textFill="WHITE" />
+                  <RadioButton fx:id="monthlyRadio" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="Monthly" textFill="WHITE" />
+               </buttons>
+            </ButtonBar>
+         </children></AnchorPane>
+      <TableView fx:id="mainCalendarTableView" layoutX="35.0" layoutY="229.0" prefHeight="245.0" prefWidth="745.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="C1" />
+          <TableColumn prefWidth="75.0" text="C2" />
+        </columns>
+      </TableView>
+      <Label fx:id="mainCalendarLabel" layoutX="35.0" layoutY="191.0" text="Appointments - Weekly" textFill="WHITE" underline="true">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <ButtonBar layoutX="12.0" layoutY="108.0" prefHeight="40.0" prefWidth="775.0">
+         <buttons>
+            <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" text="Add Customer" />
+            <Button fx:id="modifyCustomerButton" mnemonicParsing="false" onAction="#handleModifyCustomer" text="Modify Customer" />
+            <Button fx:id="addAppointmentButton" mnemonicParsing="false" onAction="#handleAddAppointment" prefHeight="27.0" text="Add Appointment" />
+            <Button fx:id="modifyAppointmentButton" mnemonicParsing="false" onAction="#handleModifyAppointment" prefHeight="27.0" prefWidth="192.0" text="Modify Appointment" />
+            <Button fx:id="reportsButton" mnemonicParsing="false" onAction="#handleReportsButton" text="Reports" />
+         </buttons>
+      </ButtonBar>
+   </children>
+</AnchorPane>
