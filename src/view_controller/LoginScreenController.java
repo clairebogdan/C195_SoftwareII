@@ -1,14 +1,20 @@
 package view_controller;
 
+import database.DatabaseConnection;
 import static database.Query.login;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +29,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.User;
 
 public class LoginScreenController implements Initializable {
     
@@ -79,7 +86,22 @@ public class LoginScreenController implements Initializable {
             outputFile.println(usernameField.getText() + " logged in on " + ts); 
             System.out.println(usernameField.getText() + " logged in on " + ts);
             outputFile.close();
-
+            
+            //Create User
+            Connection con;
+            try {
+                con = DatabaseConnection.getConnection();
+                ResultSet getUserInfo = con.createStatement().executeQuery(String.format("SELECT userId, userName FROM user WHERE userName='%s'", usernameInput));
+                getUserInfo.next();
+                User currentUser = new User(getUserInfo.getString("userName"), getUserInfo.getString("userId"), true);
+                System.out.println("it worked. " + User.getCurrentUserid() + " " + User.getCurrentUsername());
+            
+            } catch (SQLException ex) {
+                Logger.getLogger(LoginScreenController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
+            
             //Change screens
             System.out.println("Login Successful! Login Screen -> Main Screen");
             Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/MainScreen.fxml"));

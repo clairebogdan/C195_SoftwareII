@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
@@ -13,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="549.0" prefWidth="900.0" style="-fx-background-color: #355C7D #355C7D #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.ModifyAppointmentController">
+<AnchorPane id="AnchorPane" prefHeight="523.0" prefWidth="900.0" style="-fx-background-color: #355C7D #355C7D #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.ModifyAppointmentController">
    <children>
       <Label layoutX="340.0" layoutY="20.0" text="Modify Appointment" textFill="WHITE">
          <font>
@@ -85,7 +86,6 @@
             <ComboBox fx:id="endTimeComboBox" prefWidth="150.0" GridPane.columnIndex="7" GridPane.rowIndex="2" />
             <ComboBox fx:id="startTimeComboBox" prefWidth="150.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
             <Label text="Appt ID" textFill="WHITE" />
-            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveButton" prefHeight="27.0" prefWidth="108.0" text="Save Changes" textFill="#008225" GridPane.columnIndex="7" GridPane.rowIndex="3" />
          </children>
       </GridPane>
       <Label layoutX="16.0" layoutY="69.0" text="Appointments" textFill="WHITE">
@@ -95,5 +95,11 @@
       </Label>
       <Label layoutX="16.0" layoutY="93.0" text="Select an appointment to Edit or Delete" />
       <TextField fx:id="idField" disable="true" editable="false" layoutX="90.0" layoutY="324.0" prefHeight="27.0" prefWidth="31.0" />
+      <ButtonBar layoutX="603.0" layoutY="452.0" prefHeight="40.0" prefWidth="256.0">
+         <buttons>
+            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButton" text="Cancel" textFill="RED" />
+            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveButton" prefHeight="27.0" prefWidth="119.0" text="Save Changes" textFill="#008225" />
+         </buttons>
+      </ButtonBar>
    </children>
 </AnchorPane>

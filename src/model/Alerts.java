@@ -7,12 +7,12 @@ import javafx.stage.Modality;
 
 public class Alerts {
  
-    public static void blankFieldError(String s) {
+    public static void blankFieldError(String s1, String s2, String s3) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.initModality(Modality.NONE);
         alert.setTitle("Error");
         alert.setHeaderText("Blank Field");
-        alert.setContentText("The " + s + " field cannot be left blank");  
+        alert.setContentText("All fields (except " + s1 + ") MUST be filled to " + s2 + " " + s3 + ".");  
         alert.showAndWait();
     }
     
@@ -50,6 +50,24 @@ public class Alerts {
         alert.setTitle("Appointment Added");
         alert.setHeaderText("Appointment Added!");
         alert.setContentText("Appointment was added for customer " + s);  
+        alert.showAndWait();
+    }
+   
+   public static void appointmentEdited(String s1, String s2) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Appointment Information Saved");
+        alert.setHeaderText("Appointment Information Saved!");
+        alert.setContentText("Changes made to appointment ID #" + s1 + " for customer " + s2 + " have been saved.");  
+        alert.showAndWait();
+    }
+   
+   public static void appointmentDeleted(String s) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Deletion Successful");
+        alert.setHeaderText("Deletion Successful!");
+        alert.setContentText("Appointment for customer " + s + " was successfully deleted from the database.");  
         alert.showAndWait();
     }
    

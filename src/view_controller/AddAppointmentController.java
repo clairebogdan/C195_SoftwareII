@@ -201,69 +201,67 @@ public class AddAppointmentController implements Initializable {
     //add new appointment to the database, clear fields once this is done
     @FXML private void handleAddButton (ActionEvent event) throws IOException {
         
-        //FIXME************** get the date, start, and end times to work
-        
-        //Gather user-entered data from textfields
-        String addId = idField.getText();
-        String addName = nameField.getText();
-        String addTitle = titleField.getText();
-        String addDescription = descriptionField.getText();
-        String addLocation = locationField.getText();
-        String addType = typeComboBox.getValue().toString();
-        String addContact = contactField.getText();
-        String addURL = urlField.getText();
-        String addDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String addStartTime = (String) startTimeComboBox.getValue().toString();
-        String addEndTime = (String) endTimeComboBox.getValue().toString();
-        
-        //Alert user that there are blank textfields
-        if (addTitle.isEmpty()) blankFieldError("Title");
-        if (addDescription.isEmpty()) blankFieldError("Description");
-        if (addLocation.isEmpty()) blankFieldError("Location");
-        if (addType.isEmpty()) blankFieldError("Type");
-        if (addContact.isEmpty()) blankFieldError("Contact");
-        if (addDate.isEmpty()) blankFieldError("Date");
-        if (addStartTime.isEmpty()) blankFieldError("Start Time");
-        if (addEndTime.isEmpty()) blankFieldError("End Time");
-        
-        //Adds new customer to the database (*****MISSING DATE REQUIREMENT)
-        if (!addTitle.isEmpty() && !addDescription.isEmpty() && !addLocation.isEmpty() && !addType.isEmpty() && !addContact.isEmpty() && !addDate.isEmpty() && !addStartTime.isEmpty() && !addEndTime.isEmpty()) {
-            
-            //Executes adding customer query
-            Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
-        
-            //Refreshes screen, shows the new data in the table
-            System.out.println("Refresh after add");
-            Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
-            Scene scene = new Scene(parent);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        
-            //Pop-up confirming that a new 
-            appointmentAdded(addName);
-            
-            //Enable TableView, Edit, and Delete buttons, disable Save button
-            custNamesTableView.setDisable(false);
-            searchButton.setDisable(false);
-            searchField.setDisable(false);
-            selectCustomerButton.setDisable(false);
-            
-            //set textfields to disabled once the Add Button is clicked
-            titleField.setDisable(true);
-            descriptionField.setDisable(true);
-            contactField.setDisable(true);
-            urlField.setDisable(true);
-            locationField.setDisable(true);
-            typeComboBox.setDisable(true);
-            datePicker.setDisable(true);
-            startTimeComboBox.setDisable(true);
-            endTimeComboBox.setDisable(true);
-            cancelButton.setDisable(true);
-            addButton.setDisable(true); 
+        /*FIXME!
+        *Add button when empty is not triggering the blank field errors
+        *Catch overlapping appointments
+        *Catch out of office hours
+        */
+        try {
+            //Gather user-entered data from textfields
+            String addId = idField.getText();
+            String addName = nameField.getText();
+            String addTitle = titleField.getText();
+            String addDescription = descriptionField.getText();
+            String addLocation = locationField.getText();
+            String addType = typeComboBox.getValue().toString();
+            String addContact = contactField.getText();
+            String addURL = urlField.getText();
+            String addDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String addStartTime = (String) startTimeComboBox.getValue().toString();
+            String addEndTime = (String) endTimeComboBox.getValue().toString();
+
+            if (!addTitle.isEmpty() && !addDescription.isEmpty() && !addLocation.isEmpty() && !addType.isEmpty() && !addContact.isEmpty() && !addDate.isEmpty() && !addStartTime.isEmpty() && !addEndTime.isEmpty()) {
+
+                //Executes adding customer query
+                Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
+
+                //Refreshes screen, shows the new data in the table
+                System.out.println("Add successful! Refresh page.");
+                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
+                Scene scene = new Scene(parent);
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+
+                //Pop-up confirming that a new 
+                appointmentAdded(addName);
+
+                //Enable TableView, Edit, and Delete buttons, disable Save button
+                custNamesTableView.setDisable(false);
+                searchButton.setDisable(false);
+                searchField.setDisable(false);
+                selectCustomerButton.setDisable(false);
+
+                //set textfields to disabled once the Add Button is clicked
+                titleField.setDisable(true);
+                descriptionField.setDisable(true);
+                contactField.setDisable(true);
+                urlField.setDisable(true);
+                locationField.setDisable(true);
+                typeComboBox.setDisable(true);
+                datePicker.setDisable(true);
+                startTimeComboBox.setDisable(true);
+                endTimeComboBox.setDisable(true);
+                cancelButton.setDisable(true);
+                addButton.setDisable(true); 
+            }
+            else {
+                blankFieldError("URL", "add", "an appointment");
+            }
+        } catch (Exception e) {
+            blankFieldError("URL", "add", "an appointment");
         }
     }
-    
     
 
     

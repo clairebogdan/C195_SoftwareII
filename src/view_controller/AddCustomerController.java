@@ -83,43 +83,46 @@ public class AddCustomerController implements Initializable {
         address2Field.clear();
         zipField.clear();
         phoneField.clear();
+        cityComboBox.setItems(Query.getCities());
     }
     
     @FXML private void handleAddButton (ActionEvent event) throws IOException {
         
-        //FIXME*************** pressing "add" is not triggering the alerts
+        /*FIXME!
+        *Add button when empty is not triggering the blank field errors
+        */
         
-        //Gather user-entered data from textfields
-        String addName = nameField.getText();
-        String addAddress1 = address1Field.getText();
-        String addAddress2 = address2Field.getText();
-        String addZip = zipField.getText();
-        String addPhone = phoneField.getText();
-        String addCity = (String) cityComboBox.getValue().toString();
-        
-        //Alert user that there are blank textfields
-        if (addName.isEmpty()) blankFieldError("Name");
-        if (addAddress1.isEmpty()) blankFieldError("Street Address");
-        if (addCity.isEmpty()) blankFieldError("City");
-        if (addZip.isEmpty()) blankFieldError("Zip Code");
-        if (addPhone.isEmpty()) blankFieldError("Phone");
-        
-        //Adds new customer to the database
-        if (!addName.isEmpty() && !addAddress1.isEmpty() && !addCity.isEmpty() && !addZip.isEmpty() && !addPhone.isEmpty()) {
-            
-            //Executes adding customer query
-            Query.addCustomer(addName, addAddress1, addAddress2, addZip, addCity, addPhone);
-        
-            //Refreshes screen, shows the new data in the table
-            System.out.println("Refresh after add");
-            Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddCustomer.fxml"));
-            Scene scene = new Scene(parent);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        
-            //Pop-up confirming that a new 
-            customerAdded(addName);
+        try{
+            //Gather user-entered data from textfields
+            String addName = nameField.getText();
+            String addAddress1 = address1Field.getText();
+            String addAddress2 = address2Field.getText();
+            String addZip = zipField.getText();
+            String addPhone = phoneField.getText();
+            String addCity = (String) cityComboBox.getValue().toString();
+
+            //Adds new customer to the database
+            if (!addName.isEmpty() && !addAddress1.isEmpty() && !addCity.isEmpty() && !addZip.isEmpty() && !addPhone.isEmpty()) {
+
+                //Executes adding customer query
+                Query.addCustomer(addName, addAddress1, addAddress2, addZip, addCity, addPhone);
+
+                //Refreshes screen, shows the new data in the table
+                System.out.println("Add successful! Refresh page.");
+                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddCustomer.fxml"));
+                Scene scene = new Scene(parent);
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+
+                //Pop-up confirming that a new 
+                customerAdded(addName);
+            }
+            else {
+                blankFieldError("Address Line 2", "add", "a customer");
+            }
+        } catch (Exception e) {
+            blankFieldError("Address Line 2", "add", "a customer");
         }
     }
     

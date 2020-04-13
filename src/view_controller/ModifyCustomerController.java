@@ -57,6 +57,7 @@ public class ModifyCustomerController implements Initializable {
     @FXML private Button deleteButton;
     @FXML private Button editButton;
     @FXML private Button searchButton;
+    @FXML private Button cancelButton;
 
     
     //Define TableView parts
@@ -143,6 +144,7 @@ public class ModifyCustomerController implements Initializable {
             cityComboBox.setDisable(false);
             phoneField.setDisable(false);
             saveButton.setDisable(false);
+            cancelButton.setDisable(false);
             
             //Disable the TableView, Edit, and Delete buttons
             customersTableView.setDisable(true);
@@ -181,7 +183,7 @@ public class ModifyCustomerController implements Initializable {
                     deleteCustomer(id);
 
                     //Refreshes screen, shows updated table (post-delete)
-                    System.out.println("Refresh after edit");
+                    System.out.println("Delete successful! Refresh page.");
                     Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/ModifyCustomer.fxml"));
                     Scene scene = new Scene(parent);
                     Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -200,55 +202,88 @@ public class ModifyCustomerController implements Initializable {
     }
     
     //Commit changes to a customer to the database
+    @FXML private void handleCancelButton (ActionEvent event) throws IOException {
+        
+        //Clear anything that was entered
+        idField.clear();
+        nameField.clear();
+        address1Field.clear();
+        address2Field.clear();
+        zipField.clear();
+        phoneField.clear();
+        cityComboBox.setItems(Query.getCities());
+
+        //Disable the textfields and bottom buttons
+        idField.setDisable(true);
+        nameField.setDisable(true);
+        address1Field.setDisable(true);
+        address2Field.setDisable(true);
+        zipField.setDisable(true);
+        phoneField.setDisable(true);
+        cityComboBox.setDisable(true);
+        cancelButton.setDisable(true);
+        saveButton.setDisable(true);
+        
+        //Enable the TableView again and Search
+        customersTableView.setDisable(false);
+        editButton.setDisable(false);
+        deleteButton.setDisable(false);
+        searchField.setDisable(false);
+        searchButton.setDisable(false);
+    }
+     
+    //Commit changes to a customer to the database
     @FXML private void handleSaveButton (ActionEvent event) throws IOException {
         
-        //Gather user-entered data from textfields
-        String id = idField.getText();
-        String editName = nameField.getText();
-        String editAddress1 = address1Field.getText();
-        String editAddress2 = address2Field.getText();
-        String editZip = zipField.getText();
-        String editPhone = phoneField.getText();
-        String editCity = (String) cityComboBox.getValue().toString();
-        
-        //Alert user that there are blank textfields
-        if (editName.isEmpty()) blankFieldError("Name");
-        if (editAddress1.isEmpty()) blankFieldError("Street Address");
-        if (editCity.isEmpty()) blankFieldError("City");
-        if (editZip.isEmpty()) blankFieldError("Zip Code");
-        if (editPhone.isEmpty()) blankFieldError("Phone");
-        
-        //Adds new customer to the database
-        if (!editName.isEmpty() && !editAddress1.isEmpty() && !editCity.isEmpty() && !editZip.isEmpty() && !editPhone.isEmpty()) {
-            
-            //Executes adding customer query
-            Query.editCustomer(id, editName, editAddress1, editAddress2, editCity, editZip, editPhone);
-        
-            //Refreshes screen, shows the new data in the table
-            System.out.println("Refresh after edit");
-            Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/ModifyCustomer.fxml"));
-            Scene scene = new Scene(parent);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        
-            //Pop-up confirming that a new 
-            customerEdited(editName);
-            
-            //Enable TableView, Edit, and Delete buttons, disable Save button
-            saveButton.setDisable(true);
-            customersTableView.setDisable(false);
-            editButton.setDisable(false);
-            deleteButton.setDisable(false);
-            
-            //disable textfield edits until Edit button is clicked again or Delete
-            nameField.setDisable(true);
-            address1Field.setDisable(true);
-            address2Field.setDisable(true);
-            zipField.setDisable(true);
-            cityComboBox.setDisable(true);
-            phoneField.setDisable(true);
-            saveButton.setDisable(true);
+        try {
+
+            //Gather user-entered data from textfields
+            String id = idField.getText();
+            String editName = nameField.getText();
+            String editAddress1 = address1Field.getText();
+            String editAddress2 = address2Field.getText();
+            String editZip = zipField.getText();
+            String editPhone = phoneField.getText();
+            String editCity = (String) cityComboBox.getValue().toString();
+
+            //Adds new customer to the database
+            if (!editName.isEmpty() && !editAddress1.isEmpty() && !editCity.isEmpty() && !editZip.isEmpty() && !editPhone.isEmpty()) {
+
+                //Executes adding customer query
+                Query.editCustomer(id, editName, editAddress1, editAddress2, editCity, editZip, editPhone);
+
+                //Refreshes screen, shows the new data in the table
+                System.out.println("Edit successful! Refresh page.");
+                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/ModifyCustomer.fxml"));
+                Scene scene = new Scene(parent);
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+
+                //Pop-up confirming that a new 
+                customerEdited(editName);
+
+                //Enable TableView, Edit, and Delete buttons, disable Save button
+                saveButton.setDisable(true);
+                customersTableView.setDisable(false);
+                editButton.setDisable(false);
+                deleteButton.setDisable(false);
+
+                //disable textfield edits until Edit button is clicked again or Delete
+                nameField.setDisable(true);
+                address1Field.setDisable(true);
+                address2Field.setDisable(true);
+                zipField.setDisable(true);
+                cityComboBox.setDisable(true);
+                phoneField.setDisable(true);
+                saveButton.setDisable(true);
+                cancelButton.setDisable(true);
+            }
+            else {
+                blankFieldError("Address Line 2", "modify", "a customer");
+            }
+        } catch (Exception e) {
+            blankFieldError("Address Line 2", "modify", "a customer");
         }
     }
     
@@ -269,6 +304,7 @@ public class ModifyCustomerController implements Initializable {
         cityComboBox.setDisable(true);
         phoneField.setDisable(true);
         saveButton.setDisable(true);
+        cancelButton.setDisable(true);
 
         //Populate Customers table using the database
         Connection con;

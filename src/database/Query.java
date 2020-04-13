@@ -4,11 +4,10 @@ import static database.DatabaseConnection.conn;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.User;
 
 public class Query {
     
@@ -23,7 +22,7 @@ public class Query {
     
 //////////////////////////LOGIN SCREEN FUNCTIONS////////////////////////////////    
     
-    //checks username and password for logging in
+    //Checks username and password for logging in
     public static boolean login(String usernameInput, String passwordInput) {
             try{
                 DatabaseConnection.makeConnection();
@@ -42,7 +41,7 @@ public class Query {
                 return false;
             }
         }
-   
+
     
     
 //////////////////////////MAIN SCREEN CALENDAR FUNCTIONS////////////////////////
@@ -83,7 +82,7 @@ public class Query {
             conn.createStatement().executeUpdate(String.format("INSERT INTO address "
                     + "(address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                    address1, address2, getCityId.getString("cityId"), zip, phone, LocalDateTime.now(), "test", LocalDateTime.now(), "test"));
+                    address1, address2, getCityId.getString("cityId"), zip, phone, LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));
             
             //3. Get the address ID, which is needed for inserting into the customer table. It was generated in step 2.
             ResultSet getAddressId = conn.createStatement().executeQuery(String.format("SELECT addressId FROM address WHERE address='%s' AND address2='%s' AND cityId='%s' AND postalCode='%s'",
@@ -94,7 +93,7 @@ public class Query {
             conn.createStatement().executeUpdate(String.format("INSERT INTO customer "
                     + "(customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', 1, '%s', '%s', '%s', '%s')", 
-                    name, getAddressId.getString("addressId"), LocalDateTime.now(), "test", LocalDateTime.now(), "test"));    
+                    name, getAddressId.getString("addressId"), LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));    
         } catch (Exception e) {
             System.out.println("Error adding customer: " + e.getMessage());
         }
@@ -128,7 +127,7 @@ public class Query {
             conn.createStatement().executeUpdate(String.format("UPDATE customer"
                     + " SET customerName='%s', lastUpdate='%s', lastUpdateBy='%s'" 
                     + " WHERE customerId='%s'",
-                    name, LocalDateTime.now(), "test", id));
+                    name, LocalDateTime.now(), User.getCurrentUsername(), id));
             
             //2. Get city ID from the entered string 'city'
             ResultSet getCityId = conn.createStatement().executeQuery(String.format("SELECT cityId FROM city WHERE city = '%s'", city));
@@ -138,37 +137,32 @@ public class Query {
             conn.createStatement().executeUpdate(String.format("UPDATE address"
                     + " SET address='%s', address2='%s', cityId='%s', postalCode='%s', phone='%s', lastUpdate='%s', lastUpdateBy='%s'" 
                     + " WHERE addressId='%s'",
-                    address1, address2, getCityId.getString("cityId"), zip, phone, LocalDateTime.now(), "test", id));
+                    address1, address2, getCityId.getString("cityId"), zip, phone, LocalDateTime.now(), User.getCurrentUsername(), id));
             
         } catch (Exception e) {
             System.out.println("Error editing customer: " + e.getMessage());
         }
     }
-    
-    
-    
-    
+
     
     
 //////////////////////////ADD & MODIFY CUSTOMER FUNCTIONS///////////////////////
     
     //Fills the type combo boxes
     public static ObservableList<String> getTypes() {
-        try {
-            ResultSet typeList = conn.createStatement().executeQuery("SELECT type FROM appointment;");
-            while (typeList.next()) {
-                types.add(typeList.getString("type"));
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        types.removeAll(types); //prevents types from copying themselves to the list
+        types.add("Beginner");
+        types.add("Intermediate");
+        types.add("Advanced");
         return types;
     }
+    
     
           
     //Fills in the start/end time combo boxes
     public static ObservableList<String> getTimes() {
-        try {         
+        try {     
+            times.removeAll(times); //prevents cities from copying themselves to the list
             for (int i = 9; i < 17; i++ ) {
                 String hour;
                     if(i < 10) {                   
@@ -190,6 +184,7 @@ public class Query {
         }
     
     
+    
     //Add new Appointment to the database
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) {
         try {
@@ -198,48 +193,53 @@ public class Query {
             String dateAndStartTime, dateAndEndTime;
             dateAndStartTime = date + " " + startTime;
             dateAndEndTime = date + " " + endTime;
-            
-            //2. Get the user ID, which is needed for inserting into the appointment table
-            ResultSet getUserId = conn.createStatement().executeQuery(String.format("SELECT userId FROM user WHERE userName = '%s'", "test"));
-            getUserId.next();
-            
-            
-            //***FIXME*** replace "test" with a user function or class.
-            
-            //3. Insert  data into the appointment table
+
+            //2. Insert  data into the appointment table
             conn.createStatement().executeUpdate(String.format("INSERT INTO appointment "
                     + "(customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                    id, getUserId.getString("userId"), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), "test", LocalDateTime.now(), "test"));  
+                    id, User.getCurrentUserid(), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));  
         } catch (Exception e) {
             System.out.println("Error adding appointment: " + e.getMessage());
         }
     }
     
+    
+    
     //Delete existing Appointment from the database
+    public static void deleteAppointment(String id){
+        try {
+            conn.createStatement().executeUpdate(String.format("DELETE FROM appointment WHERE appointmentId='%s'", id));
+  
+        } catch (Exception e) {
+            System.out.println("Error deleting appointment: " + e.getMessage());
+        }
+    }
+    
+    
     
     //Update existing Appointment in the database
-    
-    //Refresh the database and TableView Appointments
+    public static void editAppointment(String apptId, String custName, String title, String description, String contact, String url, String type, String location, String date, String startTime, String endTime) {
+        try {
+            //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
+            String dateAndStartTime, dateAndEndTime;
+            dateAndStartTime = date + " " + startTime;
+            dateAndEndTime = date + " " + endTime;
+            
+            
+            //2. Get customer ID, which is needed for inserting into the appointment table
+            ResultSet getCustomerId = conn.createStatement().executeQuery(String.format("SELECT customerId FROM appointment WHERE appointmentId = '%s'", apptId));
+            getCustomerId.next();
 
-       
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+            //3. Insert  data into the appointment table
+            conn.createStatement().executeUpdate(String.format("UPDATE appointment "
+                    + "SET customerId='%s', userId='%s', title='%s', description='%s', location='%s', contact='%s', type='%s', url='%s', start='%s', end='%s', lastUpdate='%s', lastUpdateBy='%s' " +
+                    "WHERE appointmentId='%s'", 
+                    getCustomerId.getString("customerId"), User.getCurrentUserid(), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), User.getCurrentUsername(), apptId));  
+        } catch (Exception e) {
+            System.out.println("Error editing appointment: " + e.getMessage());
+        }
+    }   
 }
     
     
