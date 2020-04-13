@@ -7,6 +7,8 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import static model.Alerts.appointmentAdded;
 import static model.Alerts.blankFieldError;
 import static model.Alerts.nothingSearched;
@@ -209,7 +212,7 @@ public class AddAppointmentController implements Initializable {
         String addType = typeComboBox.getValue().toString();
         String addContact = contactField.getText();
         String addURL = urlField.getText();
-        String addDate = (String) datePicker.getValue().toString();
+        String addDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String addStartTime = (String) startTimeComboBox.getValue().toString();
         String addEndTime = (String) endTimeComboBox.getValue().toString();
         
@@ -223,7 +226,7 @@ public class AddAppointmentController implements Initializable {
         if (addStartTime.isEmpty()) blankFieldError("Start Time");
         if (addEndTime.isEmpty()) blankFieldError("End Time");
         
-        //Adds new customer to the database
+        //Adds new customer to the database (*****MISSING DATE REQUIREMENT)
         if (!addTitle.isEmpty() && !addDescription.isEmpty() && !addLocation.isEmpty() && !addType.isEmpty() && !addContact.isEmpty() && !addDate.isEmpty() && !addStartTime.isEmpty() && !addEndTime.isEmpty()) {
             
             //Executes adding customer query
@@ -279,8 +282,11 @@ public class AddAppointmentController implements Initializable {
         typeComboBox.setDisable(true);
         typeComboBox.setItems(Query.getTypes());
         datePicker.setDisable(true);
+        datePicker.setPromptText("YYYY-MM-DD");
         startTimeComboBox.setDisable(true);
+        startTimeComboBox.setItems(Query.getTimes());
         endTimeComboBox.setDisable(true);
+        endTimeComboBox.setItems(Query.getTimes());
         cancelButton.setDisable(true);
         addButton.setDisable(true);
         
@@ -298,7 +304,6 @@ public class AddAppointmentController implements Initializable {
 
             custIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
             custNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-
             custNamesTableView.setItems(idAndNamesTable);
     }    
 }

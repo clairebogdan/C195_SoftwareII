@@ -197,7 +197,9 @@ public class ModifyAppointmentController implements Initializable {
         locationField.setDisable(true);
         datePicker.setDisable(true);
         startTimeComboBox.setDisable(true);
+        startTimeComboBox.setItems(Query.getTimes());
         endTimeComboBox.setDisable(true);
+        endTimeComboBox.setItems(Query.getTimes());
         saveButton.setDisable(true);
         
         
@@ -235,7 +237,6 @@ public class ModifyAppointmentController implements Initializable {
             startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
             endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
             
-            //populates table
             appointmentTableView.setItems(appointmentTable); 
             
     }    

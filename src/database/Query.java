@@ -4,7 +4,9 @@ import static database.DatabaseConnection.conn;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -16,6 +18,7 @@ public class Query {
     static ObservableList<String> cities = FXCollections.observableArrayList();
     static ObservableList<String> types = FXCollections.observableArrayList();
     static ObservableList<String> customersTable = FXCollections.observableArrayList();
+    static ObservableList<String> times = FXCollections.observableArrayList();
     
     
 //////////////////////////LOGIN SCREEN FUNCTIONS////////////////////////////////    
@@ -162,21 +165,52 @@ public class Query {
         return types;
     }
     
+          
+    //Fills in the start/end time combo boxes
+    public static ObservableList<String> getTimes() {
+        try {         
+            for (int i = 9; i < 17; i++ ) {
+                String hour;
+                    if(i < 10) {                   
+                        hour = "0" + i;
+                    }
+                    else {
+                        hour = Integer.toString(i);
+                    }
+                    times.add(hour + ":00:00");
+                    times.add(hour + ":15:00");
+                    times.add(hour + ":30:00");
+                    times.add(hour + ":45:00");
+                }
+                
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return times;
+        }
+    
+    
     //Add new Appointment to the database
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) {
         try {
-            //1. Get the user ID, which is needed for inserting into the appointment table
+            
+            //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
+            String dateAndStartTime, dateAndEndTime;
+            dateAndStartTime = date + " " + startTime;
+            dateAndEndTime = date + " " + endTime;
+            
+            //2. Get the user ID, which is needed for inserting into the appointment table
             ResultSet getUserId = conn.createStatement().executeQuery(String.format("SELECT userId FROM user WHERE userName = '%s'", "test"));
             getUserId.next();
             
             
             //***FIXME*** replace "test" with a user function or class.
             
-            //2. Insert  data into the appointment table
+            //3. Insert  data into the appointment table
             conn.createStatement().executeUpdate(String.format("INSERT INTO appointment "
                     + "(customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                    id, getUserId.getString("userId"), title, description, location, contact, type, url, date, startTime, endTime, LocalDateTime.now(), "test", LocalDateTime.now(), "test"));  
+                    id, getUserId.getString("userId"), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), "test", LocalDateTime.now(), "test"));  
         } catch (Exception e) {
             System.out.println("Error adding appointment: " + e.getMessage());
         }
