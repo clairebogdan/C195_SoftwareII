@@ -1,5 +1,9 @@
 package view_controller;
 
+import static database.Query.getReports;
+import static database.Query.reportApptTypesByMonth;
+import static database.Query.reportApptsPerMonth;
+import static database.Query.reportConsultantSchedule;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,8 +28,6 @@ public class ReportsController implements Initializable {
    
     @FXML private ChoiceBox reportChoiceBox;
     @FXML private TextArea textAreaForReports;
-    @FXML private Label reportTextAreaLabel;
-    @FXML private Button returnButton;
     @FXML private Button resetButton;
     @FXML private Button generateReportButton;
 
@@ -46,11 +48,34 @@ public class ReportsController implements Initializable {
     
     //generate report in the text area
     @FXML private void handleGenerateReportButton (ActionEvent event) throws IOException {
+        textAreaForReports.clear();
+        reportChoiceBox.setDisable(true);
+        generateReportButton.setDisable(true);
+        resetButton.setDisable(false);
+        
+        String chosenReport = reportChoiceBox.getValue().toString();
+        
+        if (chosenReport.equals("Appointment Types by Month")) {
+            textAreaForReports.setText(reportApptTypesByMonth());
+        }
+        else if (chosenReport.equals("Schedule for Each Consultant")) {
+            textAreaForReports.setText(reportConsultantSchedule());
+        }
+        else if (chosenReport.equals("Appointments per Month")) {
+            textAreaForReports.setText(reportApptsPerMonth());
+        }
+        
+        
         
     }
     
     //reset everything on Reports screen
     @FXML private void handleResetButton (ActionEvent event) throws IOException {
+        textAreaForReports.clear();
+        resetButton.setDisable(true);
+        reportChoiceBox.setDisable(false);
+        reportChoiceBox.setItems(getReports());
+        generateReportButton.setDisable(false);
         
     }
     
@@ -60,7 +85,9 @@ public class ReportsController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        resetButton.setDisable(true);
+        //textAreaForReports.setDisable(true); //ALWAYS
+        reportChoiceBox.setItems(getReports());
     }    
     
 }
