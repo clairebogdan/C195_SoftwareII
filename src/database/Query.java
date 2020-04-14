@@ -5,9 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.stage.Modality;
+import static model.Alerts.appointmentSoon;
 import model.User;
 
 public class Query {
@@ -48,9 +50,28 @@ public class Query {
     
 //////////////////////////MAIN SCREEN CALENDAR FUNCTIONS////////////////////////
 
-    //weekly calendar view
+    //Appointment in 15 minutes
+    public static boolean appointmentInFifteen() {
+        try {
+            ResultSet earliestAppt = conn.createStatement().executeQuery(String.format("SELECT customerName "
+                    + "FROM customer c INNER JOIN appointment a ON c.customerId=a.customerId INNER JOIN user u ON a.userId=u.userId "
+                    + "WHERE a.userId='%s' AND a.start BETWEEN '%s' AND '%s'",
+                    User.getCurrentUserid(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(15)));
+            earliestAppt.next();
+            
+            String name = earliestAppt.getString("customerName");
+            appointmentSoon(name);
+            
+            return true;
+        } catch (Exception e) {
+            System.out.println("You don't have an appointment soon. " + e.getMessage());
+            return false;
+        }
+    }
     
-    //monthly calendar view
+    //Weekly calendar view
+    
+    //Monthly calendar view
     
     
     
@@ -628,19 +649,7 @@ public class Query {
             System.out.println("Error getting report: " + e.getMessage());
             return "Didn't work";
         }
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }        
 }
     
     

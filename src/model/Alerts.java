@@ -98,5 +98,16 @@ public class Alerts {
         alert.showAndWait();
     }
    
+   public static void appointmentSoon(String s) {
+       Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Appointment Soon");
+        alert.setHeaderText("Appointment Soon!");
+        alert.setContentText("You have an appointment with " + s + " within the next 15 minutes!");  
+        alert.showAndWait();
+   }
+   
+   
+   
    
 }

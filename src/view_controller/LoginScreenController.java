@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -73,21 +74,17 @@ public class LoginScreenController implements Initializable {
         passwordInput = passwordField.getText();
         
         //Validate whether or not the username and password are correct
-        
         if (login(usernameInput, passwordInput)) {
             
             //Validation successful, record timestamp as a log in the logs.txt file
             String filename = "src/appointment_management_system/logs.txt";
             FileWriter fWriter = new FileWriter(filename, true);
             PrintWriter outputFile = new PrintWriter(fWriter);
-            Date date = new Date();
-            long time = date.getTime();
-            Timestamp ts = new Timestamp(time);
-            outputFile.println(usernameField.getText() + " logged in on " + ts); 
-            System.out.println(usernameField.getText() + " logged in on " + ts);
+            outputFile.println(usernameField.getText() + " logged in on " + LocalDateTime.now()); 
+            System.out.println(usernameField.getText() + " logged in on " + LocalDateTime.now());
             outputFile.close();
             
-            //Create User
+            //Create User, you will use this info later
             Connection con;
             try {
                 con = DatabaseConnection.getConnection();
@@ -99,8 +96,6 @@ public class LoginScreenController implements Initializable {
             } catch (SQLException ex) {
                 Logger.getLogger(LoginScreenController.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
             
             //Change screens
             System.out.println("Login Successful! Login Screen -> Main Screen");

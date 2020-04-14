@@ -1,5 +1,6 @@
 package view_controller;
 
+import static database.Query.appointmentInFifteen;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -10,18 +11,19 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 
 public class MainScreenController implements Initializable {
 
     //Define parts of the screen
-    
     
     @FXML private Label mainCalendarLabel;
     @FXML private TableView mainCalendarTableView;    
@@ -115,12 +117,20 @@ public class MainScreenController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //when screen is loaded, the Weekly Calendar is automatically selected
+        //When screen is loaded, the Weekly Calendar is automatically selected
         calendarRadio = new ToggleGroup();
         this.weeklyRadio.setToggleGroup(calendarRadio);
         this.monthlyRadio.setToggleGroup(calendarRadio);
         this.weeklyRadio.setSelected(true);
         isWeekly = true;
+        
+        //Alerts the user if they logged in within 15 minutes of a scheduled appointment
+        if (appointmentInFifteen()) {
+            System.out.println("User alerted");
+        }
+        else {
+            System.out.println("No appt.");
+        }
     }    
     
 }
