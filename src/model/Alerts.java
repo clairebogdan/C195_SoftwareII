@@ -99,11 +99,20 @@ public class Alerts {
     }
    
    public static void appointmentSoon(String s) {
-       Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.initModality(Modality.NONE);
         alert.setTitle("Appointment Soon");
         alert.setHeaderText("Appointment Soon!");
         alert.setContentText("You have an appointment with " + s + " within the next 15 minutes!");  
+        alert.showAndWait();
+   }
+   
+   public static void appointmentTimeIssue(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Appointment Time Error");
+        alert.setHeaderText("Appointment Time Error!");
+        alert.setContentText(message);  
         alert.showAndWait();
    }
    

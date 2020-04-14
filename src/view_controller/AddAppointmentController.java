@@ -2,11 +2,13 @@ package view_controller;
 
 import database.DatabaseConnection;
 import database.Query;
+import static database.Query.checkForOverlap;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -23,6 +25,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -31,9 +34,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import static model.Alerts.appointmentAdded;
+import static model.Alerts.appointmentTimeIssue;
 import static model.Alerts.blankFieldError;
 import static model.Alerts.nothingSearched;
 import static model.Alerts.nothingSelectedtoEdit;
+import model.Appointment;
 import model.Customer;
 
 
@@ -60,15 +65,33 @@ public class AddAppointmentController implements Initializable {
     @FXML private Button addButton;
     @FXML private Button returnButton;
     
-    //Define TableView parts
+    //Define Customer TableView parts
     
     @FXML private TableView<Customer> custNamesTableView;
     @FXML private TableColumn<Customer, Integer> custIdCol;
     @FXML private TableColumn<Customer, String> custNameCol;
     
-    //Observable List for TableView
+    //Observable List for Customer TableView
     
     ObservableList<Customer> idAndNamesTable = FXCollections.observableArrayList();
+    
+    //Define Appointment TableView parts
+    
+    @FXML private TableView<Appointment> appointmentTableView;
+    @FXML private TableColumn<Appointment, String> apptIdCol;
+    @FXML private TableColumn<Appointment, String> nameCol;
+    @FXML private TableColumn<Appointment, String> titleCol;
+    @FXML private TableColumn<Appointment, String> descriptionCol;
+    @FXML private TableColumn<Appointment, String> locationCol;
+    @FXML private TableColumn<Appointment, String> contactCol;
+    @FXML private TableColumn<Appointment, String> typeCol;
+    @FXML private TableColumn<Appointment, String> urlCol;
+    @FXML private TableColumn<Appointment, String> startCol;
+    @FXML private TableColumn<Appointment, String> endCol;
+    
+    //Observable List for TableView
+    
+    ObservableList<Appointment> currApptTable = FXCollections.observableArrayList();
     
     
     
@@ -201,11 +224,6 @@ public class AddAppointmentController implements Initializable {
     //add new appointment to the database, clear fields once this is done
     @FXML private void handleAddButton (ActionEvent event) throws IOException {
         
-        /*FIXME!
-        *Add button when empty is not triggering the blank field errors
-        *Catch overlapping appointments
-        *Catch out of office hours
-        */
         try {
             //Gather user-entered data from textfields
             String addId = idField.getText();
@@ -217,47 +235,72 @@ public class AddAppointmentController implements Initializable {
             String addContact = contactField.getText();
             String addURL = urlField.getText();
             String addDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            int checkAddTime = startTimeComboBox.getSelectionModel().getSelectedIndex();
+            int checkEndTime = endTimeComboBox.getSelectionModel().getSelectedIndex();
             String addStartTime = (String) startTimeComboBox.getValue().toString();
             String addEndTime = (String) endTimeComboBox.getValue().toString();
+            
+            System.out.println("Start Time Index: " + checkAddTime + " End Time Index: " + checkEndTime);
 
-            if (!addTitle.isEmpty() && !addDescription.isEmpty() && !addLocation.isEmpty() && !addType.isEmpty() && !addContact.isEmpty() && !addDate.isEmpty() && !addStartTime.isEmpty() && !addEndTime.isEmpty()) {
-
-                //Executes adding customer query
-                Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
-
-                //Refreshes screen, shows the new data in the table
-                System.out.println("Add successful! Refresh page.");
-                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
-                Scene scene = new Scene(parent);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-
-                //Pop-up confirming that a new 
-                appointmentAdded(addName);
-
-                //Enable TableView, Edit, and Delete buttons, disable Save button
-                custNamesTableView.setDisable(false);
-                searchButton.setDisable(false);
-                searchField.setDisable(false);
-                selectCustomerButton.setDisable(false);
-
-                //set textfields to disabled once the Add Button is clicked
-                titleField.setDisable(true);
-                descriptionField.setDisable(true);
-                contactField.setDisable(true);
-                urlField.setDisable(true);
-                locationField.setDisable(true);
-                typeComboBox.setDisable(true);
-                datePicker.setDisable(true);
-                startTimeComboBox.setDisable(true);
-                endTimeComboBox.setDisable(true);
-                cancelButton.setDisable(true);
-                addButton.setDisable(true); 
+            if (addTitle.isEmpty() || addDescription.isEmpty() || addLocation.isEmpty() || addType.isEmpty() || addContact.isEmpty() || addDate.isEmpty() || addStartTime.isEmpty() || addEndTime.isEmpty()) {
+                blankFieldError("URL", "add", "an appointment");              
             }
+            
             else {
-                blankFieldError("URL", "add", "an appointment");
+                
+                if (checkEndTime == checkAddTime) {          
+                appointmentTimeIssue("Appointment start and end times cannot be the same.");
+                }
+                
+                else if (checkEndTime < checkAddTime){
+                appointmentTimeIssue("Appointment start time must be earlier than the end time.");
+                }
+                
+                else {
+                
+                //Executes adding customer query
+                if (checkForOverlap(addStartTime, addEndTime, addDate)) {
+                    Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
+
+                    //Refreshes screen, shows the new data in the table
+                    System.out.println("Add successful! Refresh page.");
+                    Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
+                    Scene scene = new Scene(parent);
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    stage.show();
+
+                    //Pop-up confirming that a new 
+                    appointmentAdded(addName);
+
+                    //Enable TableView, Edit, and Delete buttons, disable Save button
+                    custNamesTableView.setDisable(false);
+                    searchButton.setDisable(false);
+                    searchField.setDisable(false);
+                    selectCustomerButton.setDisable(false);
+
+                    //set textfields to disabled once the Add Button is clicked
+                    titleField.setDisable(true);
+                    descriptionField.setDisable(true);
+                    contactField.setDisable(true);
+                    urlField.setDisable(true);
+                    locationField.setDisable(true);
+                    typeComboBox.setDisable(true);
+                    datePicker.setDisable(true);
+                    startTimeComboBox.setDisable(true);
+                    endTimeComboBox.setDisable(true);
+                    cancelButton.setDisable(true);
+                    addButton.setDisable(true); 
+                    }
+                else {
+                    appointmentTimeIssue("Appointment could not be scheduled due to overlap.");
+                }
+                
             }
+                
+            }
+            
+   
         } catch (Exception e) {
             blankFieldError("URL", "add", "an appointment");
         }
@@ -279,8 +322,21 @@ public class AddAppointmentController implements Initializable {
         locationField.setDisable(true);
         typeComboBox.setDisable(true);
         typeComboBox.setItems(Query.getTypes());
+        
         datePicker.setDisable(true);
-        datePicker.setPromptText("YYYY-MM-DD");
+        datePicker.getEditor().setEditable(false);
+        
+        //Disables past dates and weekends from being selected
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                setDisable(empty || date.compareTo(today) < 0);
+                if(date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY)
+                    setDisable(true);
+            }
+        });
+        
         startTimeComboBox.setDisable(true);
         startTimeComboBox.setItems(Query.getTimes());
         endTimeComboBox.setDisable(true);
@@ -292,7 +348,7 @@ public class AddAppointmentController implements Initializable {
         Connection con;
         try {
             con = DatabaseConnection.getConnection();
-            ResultSet rs = con.createStatement().executeQuery("SELECT customerId, customerName FROM customer;");
+            ResultSet rs = con.createStatement().executeQuery("SELECT customerId, customerName FROM customer ORDER BY customerId;");
             while (rs.next()) {
                 idAndNamesTable.add(new Customer(rs.getString("customerId"), rs.getString("customerName")));
             }
@@ -303,5 +359,42 @@ public class AddAppointmentController implements Initializable {
             custIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
             custNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
             custNamesTableView.setItems(idAndNamesTable);
+            
+            
+            
+        //Populate Appointment table using the database
+        try {
+            con = DatabaseConnection.getConnection();
+            ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, contact, type, url, start, end\n" +
+                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
+           
+            while (rs.next()) {
+                currApptTable.add(new Appointment(rs.getString("appointmentId"), 
+                                                     rs.getString("customerName"), 
+                                                     rs.getString("title"), 
+                                                     rs.getString("description"),
+                                                     rs.getString("location"), 
+                                                     rs.getString("contact"), 
+                                                     rs.getString("type"), 
+                                                     rs.getString("url"),
+                                                     rs.getString("start"),
+                                                     rs.getString("end")));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ModifyAppointmentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+            apptIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+            nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+            titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+            descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+            locationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+            contactCol.setCellValueFactory(new PropertyValueFactory<>("contact"));
+            typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+            urlCol.setCellValueFactory(new PropertyValueFactory<>("url"));
+            startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+            endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+            
+            appointmentTableView.setItems(currApptTable);
     }    
 }

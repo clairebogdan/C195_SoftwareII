@@ -13,80 +13,103 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="531.0" prefWidth="666.0" style="-fx-background-color: #355C7D #355C7D #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.AddAppointmentController">
+<AnchorPane id="AnchorPane" prefHeight="676.0" prefWidth="1030.0" style="-fx-background-color: #355C7D #355C7D #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.AddAppointmentController">
    <children>
-      <Label layoutX="192.0" layoutY="20.0" text="Add New Appointment" textFill="WHITE">
+      <Label layoutX="393.0" layoutY="20.0" text="Add New Appointment" textFill="WHITE">
          <font>
             <Font size="23.0" />
          </font>
       </Label>
-      <AnchorPane layoutY="64.0" prefHeight="414.0" prefWidth="305.0" style="-fx-background-color: #ABABAB;" />
-      <TableView fx:id="custNamesTableView" layoutX="14.0" layoutY="115.0" prefHeight="308.0" prefWidth="270.0">
-        <columns>
-          <TableColumn fx:id="custIdCol" prefWidth="51.0" text="ID" />
-          <TableColumn fx:id="custNameCol" prefWidth="218.0" text="Name" />
-        </columns>
-      </TableView>
+      <AnchorPane layoutX="14.0" layoutY="86.0" prefHeight="231.0" prefWidth="350.0" style="-fx-background-color: #ABABAB;">
+         <children>
+            <Button fx:id="searchButton" layoutX="283.0" layoutY="5.0" mnemonicParsing="false" onAction="#handleSearchButton" text="Search" />
+            <TextField fx:id="searchField" layoutX="111.0" layoutY="6.0" promptText="Search by full name">
+               <font>
+                  <Font name="System Italic" size="13.0" />
+               </font>
+            </TextField>
+            <Button fx:id="selectCustomerButton" layoutX="220.0" layoutY="190.0" mnemonicParsing="false" onAction="#handleSelectCustomerButton" text="Select Customer" />
+            <Label layoutX="5.0" layoutY="7.0" text="Customers" textFill="WHITE">
+               <font>
+                  <Font size="19.0" />
+               </font>
+            </Label>
+            <TableView fx:id="custNamesTableView" layoutX="3.0" layoutY="43.0" prefHeight="142.0" prefWidth="342.0">
+              <columns>
+                <TableColumn fx:id="custIdCol" prefWidth="51.0" text="ID" />
+                <TableColumn fx:id="custNameCol" prefWidth="290.0" text="Name" />
+              </columns>
+            </TableView>
+            <Label layoutX="14.0" layoutY="190.0" text="To add an appointment, select" />
+            <Label layoutX="14.0" layoutY="204.0" text="a customer first." />
+         </children></AnchorPane>
       <Button fx:id="returnButton" layoutX="4.0" layoutY="3.0" mnemonicParsing="false" onAction="#handleReturnButton" prefHeight="17.0" prefWidth="78.0" text="Return to Main">
          <font>
             <Font size="9.0" />
          </font>
       </Button>
-      <Button fx:id="cancelButton" layoutX="444.0" layoutY="467.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="27.0" prefWidth="71.0" text="Cancel" textFill="RED" />
-      <Button fx:id="addButton" layoutX="535.0" layoutY="467.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="27.0" prefWidth="88.0" text="Add" textFill="#008225" />
-      <TextField fx:id="searchField" layoutX="50.0" layoutY="430.0" promptText="Search by full name">
-         <font>
-            <Font name="System Italic" size="13.0" />
-         </font></TextField>
-      <Button fx:id="searchButton" layoutX="224.0" layoutY="429.0" mnemonicParsing="false" onAction="#handleSearchButton" text="Search" />
-      <GridPane layoutX="314.0" layoutY="67.0" prefHeight="379.0" prefWidth="314.0">
+      <Button fx:id="cancelButton" layoutX="799.0" layoutY="316.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="27.0" prefWidth="71.0" text="Cancel" textFill="RED" />
+      <Button fx:id="addButton" layoutX="877.0" layoutY="316.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="27.0" prefWidth="88.0" text="Add" textFill="#008225" />
+      <GridPane layoutX="395.0" layoutY="80.0" prefHeight="242.0" prefWidth="586.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="131.0" minWidth="10.0" prefWidth="121.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="185.0" minWidth="10.0" prefWidth="185.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="164.0" minWidth="10.0" prefWidth="79.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="203.0" minWidth="0.0" prefWidth="201.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="185.0" minWidth="0.0" prefWidth="42.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="209.0" minWidth="10.0" prefWidth="85.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="185.0" minWidth="10.0" prefWidth="185.0" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints maxHeight="56.0" minHeight="10.0" prefHeight="43.0" vgrow="SOMETIMES" />
           <RowConstraints maxHeight="49.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="31.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Customer Name" textFill="WHITE" GridPane.rowIndex="1" />
-            <Label text="Title" textFill="WHITE" GridPane.rowIndex="2" />
-            <Label text="Description" textFill="WHITE" GridPane.rowIndex="3" />
-            <Label text="Location" textFill="WHITE" GridPane.rowIndex="4" />
-            <Label text="Contact" textFill="WHITE" GridPane.rowIndex="5" />
-            <TextField fx:id="titleField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="URL" textFill="WHITE" GridPane.rowIndex="7" />
-            <Label text="Date" textFill="WHITE" GridPane.rowIndex="8" />
-            <Label text="Start Time" textFill="WHITE" GridPane.rowIndex="9" />
-            <Label text="End Time" textFill="WHITE" GridPane.rowIndex="10" />
-            <DatePicker fx:id="datePicker" promptText="YYYY-MM-DD" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <TextField fx:id="contactField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <TextField fx:id="urlField" promptText="Optional" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <TextField fx:id="nameField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label text="ID" textFill="WHITE" />
-            <ComboBox fx:id="startTimeComboBox" prefHeight="27.0" prefWidth="170.0" promptText="Choose Start Time" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-            <ComboBox fx:id="endTimeComboBox" prefHeight="27.0" prefWidth="170.0" promptText="Choose End Time" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-            <Label text="Type" textFill="WHITE" GridPane.rowIndex="6" />
-            <ComboBox fx:id="typeComboBox" prefWidth="150.0" promptText="Choose Type" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label text="Title" textFill="WHITE" />
+            <Label text="Description" textFill="WHITE" GridPane.rowIndex="1" />
+            <Label text="Location" textFill="WHITE" GridPane.rowIndex="2" />
+            <Label text="Contact" textFill="WHITE" GridPane.rowIndex="3" />
+            <TextField fx:id="titleField" GridPane.columnIndex="1" />
+            <TextField fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="URL" textFill="WHITE" GridPane.columnIndex="3" />
+            <Label text="Date" textFill="WHITE" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Label text="Start Time" textFill="WHITE" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <Label text="End Time" textFill="WHITE" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <DatePicker fx:id="datePicker" promptText="YYYY-MM-DD" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <TextField fx:id="contactField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="urlField" promptText="Optional" GridPane.columnIndex="4" />
+            <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ComboBox fx:id="startTimeComboBox" prefHeight="27.0" prefWidth="170.0" promptText="Choose Start Time" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <ComboBox fx:id="endTimeComboBox" prefHeight="27.0" prefWidth="170.0" promptText="Choose End Time" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <Label text="Type" textFill="WHITE" GridPane.rowIndex="4" />
+            <ComboBox fx:id="typeComboBox" prefWidth="150.0" promptText="Choose Type" GridPane.columnIndex="1" GridPane.rowIndex="4" />
          </children>
       </GridPane>
-      <Button fx:id="selectCustomerButton" layoutX="164.0" layoutY="80.0" mnemonicParsing="false" onAction="#handleSelectCustomerButton" text="Select Customer" />
-      <Label layoutX="20.0" layoutY="81.0" text="Customers" textFill="WHITE">
-         <font>
-            <Font size="19.0" />
-         </font>
-      </Label>
-      <TextField fx:id="idField" disable="true" editable="false" layoutX="444.0" layoutY="69.0" prefHeight="27.0" prefWidth="39.0" />
+      <TextField fx:id="idField" disable="true" editable="false" layoutX="618.0" layoutY="58.0" prefHeight="27.0" prefWidth="39.0" />
+      <AnchorPane layoutY="357.0" prefHeight="319.0" prefWidth="1030.0" style="-fx-background-color: #324c61#324c61;">
+         <children>
+            <TableView fx:id="appointmentTableView" layoutX="15.0" layoutY="35.0" prefHeight="267.0" prefWidth="1001.0">
+              <columns>
+                <TableColumn fx:id="apptIdCol" prefWidth="52.0" text="Appt ID" />
+                <TableColumn fx:id="nameCol" prefWidth="112.0" text="Customer" />
+                  <TableColumn fx:id="titleCol" prefWidth="70.0" text="Title" />
+                  <TableColumn fx:id="descriptionCol" prefWidth="85.0" text="Description" />
+                  <TableColumn fx:id="locationCol" prefWidth="74.0" text="Location" />
+                  <TableColumn fx:id="contactCol" prefWidth="57.0" text="Contact" />
+                  <TableColumn fx:id="typeCol" prefWidth="71.0" text="Type" />
+                  <TableColumn fx:id="urlCol" prefWidth="61.0" text="URL" />
+                  <TableColumn fx:id="startCol" prefWidth="219.0" text="Start Date/Time" />
+                  <TableColumn fx:id="endCol" prefWidth="199.0" text="End Date/Time" />
+              </columns>
+            </TableView>
+            <Label layoutX="431.0" layoutY="6.0" text="Current Appointments" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font></Label>
+         </children>
+      </AnchorPane>
+      <TextField fx:id="nameField" disable="true" layoutX="675.0" layoutY="58.0" />
+      <Label layoutX="479.0" layoutY="63.0" text="Add appointment for:" textFill="WHITE" />
    </children>
 </AnchorPane>

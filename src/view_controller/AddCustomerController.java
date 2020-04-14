@@ -141,7 +141,7 @@ public class AddCustomerController implements Initializable {
             ResultSet rs = con.createStatement().executeQuery("SELECT customerId, customerName, address, address2, city, postalCode, country, phone\n" +
                                                           "FROM customer c INNER JOIN address a ON c.addressId = a.addressId\n" +
                                                           "INNER JOIN city i ON a.cityId = i.cityId\n" +
-                                                          "INNER JOIN country o ON i.countryId = o.countryId;");
+                                                          "INNER JOIN country o ON i.countryId = o.countryId ORDER BY customerId;");
             while (rs.next()) {
                 customersTable.add(new Customer(rs.getString("customerId"), 
                                         rs.getString("customerName"), 

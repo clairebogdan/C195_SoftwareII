@@ -64,7 +64,7 @@ public class Query {
             
             return true;
         } catch (Exception e) {
-            System.out.println("You don't have an appointment soon. " + e.getMessage());
+            System.out.println("You don't have an appointment soon.");
             return false;
         }
     }
@@ -209,6 +209,29 @@ public class Query {
     
     
     //Add new Appointment to the database
+    
+        //First, check that it does not overlap with any appointments
+    public static boolean checkForOverlap(String startTime, String endTime, String date) {
+            try {
+                
+                startTime = date + " " + startTime;
+                endTime = date + " " + endTime;
+                
+                ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
+                           "SELECT start, end, customerName FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
+                           "WHERE ('%s' BETWEEN start AND end) " +
+                           "OR ('%s' BETWEEN start AND end) " +
+                           "OR (start BETWEEN '%s' AND '%s') " +
+                           "OR (end BETWEEN '%s' AND '%s')",
+                           startTime, endTime, startTime, endTime, startTime, endTime));
+                getOverlap.next();
+                System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
+                return false;
+            } catch (Exception e) {
+            return true;
+        }
+    }
+    
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) {
         try {
             
@@ -216,6 +239,7 @@ public class Query {
             String dateAndStartTime, dateAndEndTime;
             dateAndStartTime = date + " " + startTime;
             dateAndEndTime = date + " " + endTime;
+            
 
             //2. Insert  data into the appointment table
             conn.createStatement().executeUpdate(String.format("INSERT INTO appointment "

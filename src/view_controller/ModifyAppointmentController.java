@@ -8,6 +8,8 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -26,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -317,7 +320,21 @@ public class ModifyAppointmentController implements Initializable {
         typeComboBox.setItems(Query.getTypes());
         urlField.setDisable(true);
         locationField.setDisable(true);
+        
+        
         datePicker.setDisable(true);
+        datePicker.getEditor().setEditable(false);
+        
+        //Disables past dates and weekends from being selected
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                setDisable(empty || date.compareTo(today) < 0);
+                if(date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY)
+                    setDisable(true);
+            }
+        });
         startTimeComboBox.setDisable(true);
         startTimeComboBox.setItems(Query.getTimes());
         endTimeComboBox.setDisable(true);
@@ -331,7 +348,7 @@ public class ModifyAppointmentController implements Initializable {
         try {
             con = DatabaseConnection.getConnection();
             ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, contact, type, url, start, end\n" +
-                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId;");
+                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
            
             while (rs.next()) {
                 appointmentTable.add(new Appointment(rs.getString("appointmentId"), 

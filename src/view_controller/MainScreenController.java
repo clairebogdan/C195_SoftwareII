@@ -129,7 +129,7 @@ public class MainScreenController implements Initializable {
             System.out.println("User alerted");
         }
         else {
-            System.out.println("No appt.");
+            System.out.println("User not alerted of any appointment soon.");
         }
     }    
     
