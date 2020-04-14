@@ -251,7 +251,7 @@ public class Query {
     public static ObservableList<String> getReports() {
         reports.removeAll(reports); //prevents types from copying themselves to the list
         reports.add("Appointment Types by Month");
-        reports.add("Schedule for Each Consultant");
+        reports.add("Schedule for Consultant");
         reports.add("Appointments per Month");
         return reports;
     }
@@ -492,15 +492,40 @@ public class Query {
     
     
     
-    //Generates report: the schedule for each consultant 
+    //Generates report: the schedule for consultant 
     public static String reportConsultantSchedule() {
         try {
-            String text;
-            return "Second one worked";
             
+            //Header, also a container for where all text will be appended
+            String text = "Consultant " + User.getCurrentUsername() + "'s Schedule\n_______________________________________________________________________________________________\n" +
+                    "Date                Start       End           Appointment Info\n_______________________________________________________________________________________________\n";
             
+            //Containers for month strings
+            ObservableList<String> report2 = FXCollections.observableArrayList();
             
+            //SQL statement to get the start date/time
+            ResultSet getSchedule = conn.createStatement().executeQuery(String.format("SELECT start, end, customerName, title, description, type, location "
+                                                                                    + "FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId WHERE userId='%s' ORDER BY start;", User.getCurrentUserid()));
             
+            //Transform the data by extracting only the numerical month MM (like 01)
+            while (getSchedule.next()) {
+                String date = getSchedule.getString("start").substring(0,10);
+                String start = getSchedule.getString("start").substring(11,16);
+                String end = getSchedule.getString("end").substring(11,16);
+                String name = getSchedule.getString("customerName");
+                String title = getSchedule.getString("title");
+                String description = getSchedule.getString("description");
+                String type = getSchedule.getString("type");
+                String location = getSchedule.getString("location");
+                    report2.add(date + "\t" + start + "\t" + end + "\t" + name + "     " + title + "     " + description + "     " +  type + "     " +  location);   
+            }
+            
+            for (int i = 0; i < report2.size(); i++) {
+                text = text + report2.get(i) + "\n\n";
+            }
+
+            return text;
+ 
         } catch (Exception e) {
             System.out.println("Error getting report: " + e.getMessage());
             return "Didn't work";

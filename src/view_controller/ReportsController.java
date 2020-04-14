@@ -58,7 +58,7 @@ public class ReportsController implements Initializable {
         if (chosenReport.equals("Appointment Types by Month")) {
             textAreaForReports.setText(reportApptTypesByMonth());
         }
-        else if (chosenReport.equals("Schedule for Each Consultant")) {
+        else if (chosenReport.equals("Schedule for Consultant")) {
             textAreaForReports.setText(reportConsultantSchedule());
         }
         else if (chosenReport.equals("Appointments per Month")) {
