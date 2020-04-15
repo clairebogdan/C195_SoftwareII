@@ -127,15 +127,22 @@ public class Query {
     //Delete existing Customer from the database
     public static void deleteCustomer(String id){
         try {
-            //1. Delete from customer table
+            //1. Delete from any appointments for the customer
+            conn.createStatement().executeUpdate(String.format("DELETE FROM appointment"
+                    + " WHERE customerId='%s'", id));
+        } catch (Exception e) {
+            System.out.println("This customer did not have any appointments.");
+        }
+        
+        try {
+            //2. Delete the customer
             conn.createStatement().executeUpdate(String.format("DELETE FROM customer"
                     + " WHERE customerId='%s'", id));
             
-            //2. Delete from address table
+            //3. Delete from address table
             conn.createStatement().executeUpdate(String.format("DELETE FROM address"
                     + " WHERE addressId='%s'", id));
-            
-            
+              
         } catch (Exception e) {
             System.out.println("Error deleting customer: " + e.getMessage());
         }
