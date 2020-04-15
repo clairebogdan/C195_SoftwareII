@@ -3,6 +3,7 @@ package view_controller;
 import database.DatabaseConnection;
 import database.Query;
 import static database.Query.checkForOverlap;
+import static database.Query.checkYourself;
 import static database.Query.deleteAppointment;
 import java.io.IOException;
 import java.net.URL;
@@ -44,6 +45,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import static model.Alerts.appointmentDeleted;
 import static model.Alerts.appointmentEdited;
+import static model.Alerts.appointmentOverlap;
 import static model.Alerts.appointmentTimeIssue;
 import static model.Alerts.blankFieldError;
 import static model.Alerts.nothingSearched;
@@ -210,8 +212,7 @@ public class ModifyAppointmentController implements Initializable {
             saveButton.setDisable(false);
             cancelButton.setDisable(false);
             
-            //Disable the TableView, Edit, and Delete buttons
-            appointmentTableView.setDisable(true);
+            //Disable the Edit and Delete buttons   
             editButton.setDisable(true);
             deleteButton.setDisable(true);
             searchField.setDisable(true);
@@ -286,7 +287,8 @@ public class ModifyAppointmentController implements Initializable {
             System.out.println("Start Time Index: " + checkAddTime + " End Time Index: " + checkEndTime);
 
             if (editTitle.isEmpty() || editDescription.isEmpty() || editLocation.isEmpty() || editType.isEmpty() || editContact.isEmpty() || editDate.isEmpty() || editStartTime.isEmpty() || editEndTime.isEmpty()) {
-                blankFieldError("URL", "add", "an appointment");              
+                blankFieldError("URL", "add", "an appointment"); 
+                
             }
             
             else {
@@ -302,7 +304,7 @@ public class ModifyAppointmentController implements Initializable {
                 else {
                                  
                     //Adds new appointment to the database
-                    if (checkForOverlap(editStartTime, editEndTime, editDate)) {
+                    if (checkYourself(editStartTime, editEndTime, editDate, custName, apptId)) {
                         Query.editAppointment(apptId, custName, editTitle, editDescription, editContact, editUrl, editType, editLocation, editDate, editStartTime, editEndTime);
 
                         //Refreshes screen, shows the new data in the table
@@ -331,12 +333,14 @@ public class ModifyAppointmentController implements Initializable {
                         cancelButton.setDisable(true);
                     }
                     else {
-                        blankFieldError("URL", "modify", "an appointment");
+                        //Pop-up letting the user know of the appointment overlap.
+                        appointmentOverlap();
                     }
                 }
             }            
         } catch (Exception e) {
             blankFieldError("URL", "modify", "an appointment");
+            System.out.println("Error in the catch: " + e.getMessage());
         }
     }
     

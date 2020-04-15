@@ -206,6 +206,8 @@ public class Query {
         return times;
         }
 
+    
+    
     //Check for overlapping Appointments
     public static boolean checkForOverlap(String startTime, String endTime, String date) {
             try {
@@ -223,6 +225,35 @@ public class Query {
                 getOverlap.next();
                 System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
                 return false;
+            } catch (Exception e) {
+            return true;
+        }
+    }
+    
+    
+    
+    //***FIXME***Check for overlapping Appointments, but allows for saving the same time as before
+    public static boolean checkYourself(String startTime, String endTime, String date, String name, String apptId) {
+            try {
+                
+                startTime = date + " " + startTime;
+                endTime = date + " " + endTime;
+                
+                ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
+                           "SELECT start, end, customerName, appointmentId FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
+                           "WHERE ('%s' BETWEEN start AND end) " +
+                           "OR ('%s' BETWEEN start AND end) " +
+                           "OR (start BETWEEN '%s' AND '%s') " +
+                           "OR (end BETWEEN '%s' AND '%s')",
+                           startTime, endTime, startTime, endTime, startTime, endTime));
+                getOverlap.next();
+                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId)) {
+                            System.out.println("Save over yourself " + getOverlap.getString("customerName"));
+                            return true;
+                    }
+                    else {
+                        return false;
+                    }
             } catch (Exception e) {
             return true;
         }

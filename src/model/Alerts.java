@@ -116,6 +116,14 @@ public class Alerts {
         alert.showAndWait();
    }
    
+   public static void appointmentOverlap() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Appointment Overlap");
+        alert.setHeaderText("Appointment Overlap Error!");
+        alert.setContentText("CANNOT SAVE: Appointment start and/or end time(s) overlap with an existing appointment on your selected date.");  
+        alert.showAndWait();
+   }
    
    
    
