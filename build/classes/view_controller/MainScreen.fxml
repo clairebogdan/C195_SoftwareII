@@ -26,21 +26,17 @@
          <font>
             <Font size="10.0" />
          </font></Button>
-      <AnchorPane layoutY="168.0" prefHeight="332.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
+      <AnchorPane layoutY="164.0" prefHeight="336.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
          <children>
-            <ButtonBar layoutX="280.0" layoutY="21.0" prefHeight="40.0" prefWidth="382.0">
-               <buttons>
-                  <RadioButton fx:id="weeklyRadio" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="View by Week" textFill="WHITE" />
-                  <RadioButton fx:id="monthlyRadio" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="View by Month" textFill="WHITE" />
-                  <RadioButton fx:id="allRadio" mnemonicParsing="false" onAction="#handleAllRadio" text="View All" textFill="WHITE" />
-               </buttons>
-            </ButtonBar>
             <Label layoutX="6.0" layoutY="28.0" text="Appointment Schedule" textFill="WHITE" underline="true">
                <font>
                   <Font size="22.0" />
                </font>
             </Label>
-            <DatePicker fx:id="datePicker" layoutX="643.0" layoutY="28.0" prefHeight="27.0" prefWidth="150.0" promptText="Select a date" />
+            <DatePicker fx:id="datePicker" layoutX="643.0" layoutY="28.0" onAction="#handleDatePicked" prefHeight="27.0" prefWidth="150.0" promptText="Select a date" />
+            <RadioButton fx:id="weeklyRadio" layoutX="272.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="View by Week" textFill="WHITE" />
+            <RadioButton fx:id="monthlyRadio" layoutX="416.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="View by Month" textFill="WHITE" />
+            <RadioButton fx:id="allRadio" layoutX="560.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleAllRadio" text="View All" textFill="WHITE" />
          </children></AnchorPane>
       <TableView fx:id="mainCalendarTableView" layoutX="5.0" layoutY="229.0" prefHeight="267.0" prefWidth="790.0">
         <columns>

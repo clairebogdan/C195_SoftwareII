@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.WeekFields;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +34,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import static model.Alerts.noResults;
 import model.Appointment;
 import model.User;
 
@@ -45,6 +49,7 @@ public class MainScreenController implements Initializable {
     @FXML private DatePicker datePicker;
     private ToggleGroup calendarRadio;
     private boolean isWeekly;
+    private boolean isMonthly;
     
     @FXML private TableView<Appointment> mainCalendarTableView;
     @FXML private TableColumn<Appointment, String> apptIdCol;
@@ -130,21 +135,126 @@ public class MainScreenController implements Initializable {
         stage.show();
     }
     
+    
+    //A new date was picked
+    @FXML private void handleDatePicked (ActionEvent event) throws IOException {
+        if (isWeekly) {
+            //View by Week is previously selected
+            viewByWeek();
+        }
+        else if (isMonthly) {
+            //View by Month is previously selected
+            viewByMonth();
+        }
+        else {
+            //View All is previously selected
+        }
+    }
+    
+    public void viewByMonth() {
+        isWeekly = false;
+        isMonthly = true;
+        
+        LocalDate datePicked = datePicker.getValue();
+        String monthPicked = datePicked.toString().substring(5,7);
+        
+        System.out.println("month number: " + monthPicked);
+        
+        Connection con;
+        try {
+            appointmentSchedule.clear();
+            con = DatabaseConnection.getConnection();
+            ResultSet getApptsByMonth = con.createStatement().executeQuery(String.format("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end " +
+                                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
+                                                                          "WHERE MONTH(start) = '%s' ORDER BY start", monthPicked));
+            while (getApptsByMonth.next()) {
+                appointmentSchedule.add(new Appointment(getApptsByMonth.getString("appointmentId"), 
+                                                        getApptsByMonth.getString("customerName"), 
+                                                        getApptsByMonth.getString("title"), 
+                                                        getApptsByMonth.getString("description"),
+                                                        getApptsByMonth.getString("location"),   
+                                                        getApptsByMonth.getString("type"),
+                                                        getApptsByMonth.getString("date"),
+                                                        getApptsByMonth.getString("start").substring(11,16),
+                                                        getApptsByMonth.getString("end").substring(11,16)));
+            }
+            mainCalendarTableView.setItems(appointmentSchedule);
+            
+            if (appointmentSchedule.isEmpty()) noResults("month");
+            
+        } catch (SQLException e) {
+            System.out.println("Something wrong with SQL: " + e.getMessage());
+        }
+    }
+    
+    public void viewByWeek() {
+        isWeekly = true;
+        isMonthly = false;
+        
+        LocalDate datePicked = datePicker.getValue();
+        WeekFields weekFields = WeekFields.of(Locale.US);
+        int weekNumber = datePicked.get(weekFields.weekOfWeekBasedYear());
+        String weekString = Integer.toString(weekNumber);
+        
+        System.out.println("week number: " + weekString);
+        
+        Connection con;
+        try {
+            appointmentSchedule.clear();
+            con = DatabaseConnection.getConnection();
+            ResultSet getApptsByMonth = con.createStatement().executeQuery(String.format("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end " +
+                                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
+                                                                          "WHERE WEEK(DATE(start)) = '%s' ORDER BY start", weekString));
+            while (getApptsByMonth.next()) {
+                appointmentSchedule.add(new Appointment(getApptsByMonth.getString("appointmentId"), 
+                                                        getApptsByMonth.getString("customerName"), 
+                                                        getApptsByMonth.getString("title"), 
+                                                        getApptsByMonth.getString("description"),
+                                                        getApptsByMonth.getString("location"),   
+                                                        getApptsByMonth.getString("type"),
+                                                        getApptsByMonth.getString("date"),
+                                                        getApptsByMonth.getString("start").substring(11,16),
+                                                        getApptsByMonth.getString("end").substring(11,16)));
+            }
+            mainCalendarTableView.setItems(appointmentSchedule);
+            
+            if (appointmentSchedule.isEmpty()) noResults("week");
+            
+        } catch (SQLException e) {
+            System.out.println("Something wrong with SQL: " + e.getMessage());
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     //Weekly Radio Button - changes the calendar label and calendar data
     @FXML private void handleWeeklyRadio (ActionEvent event) throws IOException { 
-        isWeekly = true;
+        viewByWeek();
+        
         
     }
     
     //Monthly Radio Button - changes the calendar label and calender data
     @FXML private void handleMonthlyRadio (ActionEvent event) throws IOException {
-        isWeekly = false;
-        
+            viewByMonth();
     }
     
     //View All Radio Button - changes the calendar label and calendar data
     @FXML private void handleAllRadio (ActionEvent event) throws IOException { 
         isWeekly = false;
+        isMonthly = false;
         
     }
     
@@ -156,9 +266,10 @@ public class MainScreenController implements Initializable {
         this.weeklyRadio.setToggleGroup(calendarRadio);
         this.monthlyRadio.setToggleGroup(calendarRadio);
         this.allRadio.setToggleGroup(calendarRadio);
-        this.weeklyRadio.setSelected(true);
+        this.allRadio.setSelected(true);
         datePicker.setValue(LocalDate.now());
-        isWeekly = true;
+        isWeekly = false;
+        isMonthly = false;
         
         //Alerts the user if they logged in within 15 minutes of a scheduled appointment
         if (appointmentInFifteen()) {

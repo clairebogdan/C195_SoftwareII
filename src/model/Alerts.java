@@ -152,6 +152,15 @@ public class Alerts {
         alert.showAndWait();
    }
    
+   public static void noResults(String s) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("No results");
+        alert.setHeaderText("No results");
+        alert.setContentText("There are no appointments for the " + s + " you selected.");  
+        alert.showAndWait();
+    }
+   
    
    
 }
