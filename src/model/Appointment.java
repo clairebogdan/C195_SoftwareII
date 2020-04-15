@@ -3,7 +3,7 @@ package model;
 
 public class Appointment {
     
-    String id, name, title, description, location, contact, type, url, start, end;
+    String id, name, title, description, location, contact, type, url, date, start, end;
     
     public Appointment() {}
 
@@ -19,6 +19,28 @@ public class Appointment {
         this.start = start;
         this.end = end;
     }
+
+    //USED FOR CALENDAR / SIMPLE APPOINTMENT VIEW FOR MAIN SCREEN
+    public Appointment(String id, String name, String title, String description, String location, String type, String date, String start, String end) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        this.type = type;
+        this.date = date;
+        this.start = start;
+        this.end = end;
+    }
+    
+    public String getDate() {
+        return date;
+    }
+    
+    public void setDate(String date) {
+        this.date = date;
+    }
+    /////////////////////////////////////////////////////////////
 
     public String getId() {
         return id;

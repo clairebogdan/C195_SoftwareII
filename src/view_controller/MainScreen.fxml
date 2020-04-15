@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
@@ -27,25 +28,31 @@
          </font></Button>
       <AnchorPane layoutY="168.0" prefHeight="332.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
          <children>
-            <ButtonBar layoutX="288.0" layoutY="21.0" prefHeight="40.0" prefWidth="200.0">
+            <ButtonBar layoutX="280.0" layoutY="21.0" prefHeight="40.0" prefWidth="382.0">
                <buttons>
-                  <RadioButton fx:id="weeklyRadio" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="Weekly" textFill="WHITE" />
-                  <RadioButton fx:id="monthlyRadio" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="Monthly" textFill="WHITE" />
+                  <RadioButton fx:id="weeklyRadio" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="View by Week" textFill="WHITE" />
+                  <RadioButton fx:id="monthlyRadio" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="View by Month" textFill="WHITE" />
+                  <RadioButton fx:id="allRadio" mnemonicParsing="false" onAction="#handleAllRadio" text="View All" textFill="WHITE" />
                </buttons>
             </ButtonBar>
-            <Label fx:id="mainCalendarLabel" layoutX="35.0" layoutY="27.0" text="Appointments - Weekly" textFill="WHITE" underline="true">
+            <Label layoutX="6.0" layoutY="28.0" text="Appointment Schedule" textFill="WHITE" underline="true">
                <font>
                   <Font size="22.0" />
                </font>
             </Label>
+            <DatePicker fx:id="datePicker" layoutX="643.0" layoutY="28.0" prefHeight="27.0" prefWidth="150.0" promptText="Select a date" />
          </children></AnchorPane>
-      <TableView fx:id="mainCalendarTableView" layoutX="35.0" layoutY="229.0" prefHeight="245.0" prefWidth="745.0">
+      <TableView fx:id="mainCalendarTableView" layoutX="5.0" layoutY="229.0" prefHeight="267.0" prefWidth="790.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="Monday" />
-          <TableColumn prefWidth="75.0" text="Tuesday" />
-            <TableColumn prefWidth="75.0" text="Wednesday" />
-            <TableColumn prefWidth="75.0" text="Thursday" />
-            <TableColumn prefWidth="75.0" text="Friday" />
+          <TableColumn fx:id="apptIdCol" prefWidth="53.0" text="Appt ID" />
+          <TableColumn fx:id="custCol" prefWidth="107.0" text="Customer" />
+            <TableColumn fx:id="titleCol" prefWidth="72.0" text="Title" />
+            <TableColumn fx:id="descriptionCol" prefWidth="89.0" text="Description" />
+            <TableColumn fx:id="locationCol" prefWidth="74.0" text="Location" />
+            <TableColumn fx:id="typeCol" prefWidth="74.0" text="Type" />
+            <TableColumn fx:id="dateCol" prefWidth="138.0" text="Date" />
+            <TableColumn fx:id="startTimeCol" prefWidth="83.0" text="Start Time" />
+            <TableColumn fx:id="endTimeCol" prefWidth="99.0" text="End Time" />
         </columns>
       </TableView>
       <ButtonBar layoutX="12.0" layoutY="108.0" prefHeight="40.0" prefWidth="775.0">

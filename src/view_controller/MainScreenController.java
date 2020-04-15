@@ -1,9 +1,18 @@
 package view_controller;
 
+import database.DatabaseConnection;
 import static database.Query.appointmentInFifteen;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,30 +22,45 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.Appointment;
 import model.User;
 
 
 public class MainScreenController implements Initializable {
 
     //Define parts of the screen
-    
-    @FXML private Label mainCalendarLabel;
-    @FXML private TableView mainCalendarTableView;    
-    @FXML private Button logoutButton;     
-    @FXML private Button addCustomerButton;
-    @FXML private Button modifyCustomerButton;
-    @FXML private Button addAppointmentButton;
-    @FXML private Button modifyAppointmentButton;
+      
     @FXML private RadioButton weeklyRadio;
     @FXML private RadioButton monthlyRadio;
+    @FXML private RadioButton allRadio;
+    @FXML private DatePicker datePicker;
     private ToggleGroup calendarRadio;
     private boolean isWeekly;
+    
+    @FXML private TableView<Appointment> mainCalendarTableView;
+    @FXML private TableColumn<Appointment, String> apptIdCol;
+    @FXML private TableColumn<Appointment, String> custCol;
+    @FXML private TableColumn<Appointment, String> titleCol;
+    @FXML private TableColumn<Appointment, String> descriptionCol;
+    @FXML private TableColumn<Appointment, String> locationCol;
+    @FXML private TableColumn<Appointment, String> typeCol;
+    @FXML private TableColumn<Appointment, String> dateCol;
+    @FXML private TableColumn<Appointment, String> startTimeCol;
+    @FXML private TableColumn<Appointment, String> endTimeCol;
+    
+    
+    ObservableList<Appointment> appointmentSchedule = FXCollections.observableArrayList();
+    
+    
     
     
     
@@ -109,13 +133,19 @@ public class MainScreenController implements Initializable {
     //Weekly Radio Button - changes the calendar label and calendar data
     @FXML private void handleWeeklyRadio (ActionEvent event) throws IOException { 
         isWeekly = true;
-        mainCalendarLabel.setText("Appointments - Weekly");
+        
     }
     
     //Monthly Radio Button - changes the calendar label and calender data
     @FXML private void handleMonthlyRadio (ActionEvent event) throws IOException {
         isWeekly = false;
-        mainCalendarLabel.setText("Appointments - Monthly");
+        
+    }
+    
+    //View All Radio Button - changes the calendar label and calendar data
+    @FXML private void handleAllRadio (ActionEvent event) throws IOException { 
+        isWeekly = false;
+        
     }
     
     
@@ -125,7 +155,9 @@ public class MainScreenController implements Initializable {
         calendarRadio = new ToggleGroup();
         this.weeklyRadio.setToggleGroup(calendarRadio);
         this.monthlyRadio.setToggleGroup(calendarRadio);
+        this.allRadio.setToggleGroup(calendarRadio);
         this.weeklyRadio.setSelected(true);
+        datePicker.setValue(LocalDate.now());
         isWeekly = true;
         
         //Alerts the user if they logged in within 15 minutes of a scheduled appointment
@@ -135,6 +167,40 @@ public class MainScreenController implements Initializable {
         else {
             System.out.println("User not alerted of any appointment soon.");
         }
+        
+        //Populate Appointment Schedule table
+        Connection con;
+        try {
+            con = DatabaseConnection.getConnection();
+            ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end\n" +
+                                                          "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
+            while (rs.next()) {
+                appointmentSchedule.add(new Appointment(rs.getString("appointmentId"), 
+                                                        rs.getString("customerName"), 
+                                                        rs.getString("title"), 
+                                                        rs.getString("description"),
+                                                        rs.getString("location"),   
+                                                        rs.getString("type"),
+                                                        rs.getString("date"),
+                                                        rs.getString("start").substring(11,16),
+                                                        rs.getString("end").substring(11,16)));
+                
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ModifyAppointmentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+            apptIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+            custCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+            titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+            descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+            locationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+            typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+            dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
+            startTimeCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+            endTimeCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+            
+            mainCalendarTableView.setItems(appointmentSchedule);
     }    
     
 }

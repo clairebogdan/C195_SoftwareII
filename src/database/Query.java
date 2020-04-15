@@ -95,9 +95,9 @@ public class Query {
     
 
     
-    //Add new Customer to the database
+    //Add new Customer to the database (using "throws" exception, which is handled in the AddCustomerController)
     public static void addCustomer(String name, String address1, String address2, String zip, String city, String phone) throws SQLException {
-        //try {
+            
             //1. Get the city ID, which is needed for inserting into the address table
             ResultSet getCityId = conn.createStatement().executeQuery(String.format("SELECT cityId FROM city WHERE city = '%s'", city));
             getCityId.next();
