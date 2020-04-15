@@ -205,12 +205,8 @@ public class Query {
         }
         return times;
         }
-    
-    
-    
-    //Add new Appointment to the database
-    
-        //First, check that it does not overlap with any appointments
+
+    //Check for overlapping Appointments
     public static boolean checkForOverlap(String startTime, String endTime, String date) {
             try {
                 
@@ -232,6 +228,9 @@ public class Query {
         }
     }
     
+    
+    
+    //Adding an Appointment to the database
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) {
         try {
             

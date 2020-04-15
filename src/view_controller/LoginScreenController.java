@@ -91,7 +91,7 @@ public class LoginScreenController implements Initializable {
                 ResultSet getUserInfo = con.createStatement().executeQuery(String.format("SELECT userId, userName FROM user WHERE userName='%s'", usernameInput));
                 getUserInfo.next();
                 User currentUser = new User(getUserInfo.getString("userName"), getUserInfo.getString("userId"), true);
-                System.out.println("it worked. " + User.getCurrentUserid() + " " + User.getCurrentUsername());
+                System.out.println("Current userId: " + User.getCurrentUserid() + " userName: " + User.getCurrentUsername());
             
             } catch (SQLException ex) {
                 Logger.getLogger(LoginScreenController.class.getName()).log(Level.SEVERE, null, ex);

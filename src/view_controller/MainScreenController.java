@@ -19,6 +19,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.User;
 
 
 public class MainScreenController implements Initializable {
@@ -44,7 +45,10 @@ public class MainScreenController implements Initializable {
     
     //go back to Login Screen
     @FXML private void handleLogoutButton (ActionEvent event) throws IOException {
-        System.out.println("Main Menu -> Login Screen");
+        User.setCurrentUserid(null);
+        User.setCurrentUsername(null);
+        
+        System.out.println("LOGGED OUT!");
         Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/LoginScreen.fxml"));
         Scene scene = new Scene(parent);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

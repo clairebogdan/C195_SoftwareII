@@ -186,6 +186,7 @@ public class AddAppointmentController implements Initializable {
     //Clear all editable fields, reset back to original
     @FXML private void handleCancelButton (ActionEvent event) throws IOException {
         //Clear anything that was entered
+        idField.clear();
         nameField.clear();
         titleField.clear();
         descriptionField.clear();
@@ -258,49 +259,45 @@ public class AddAppointmentController implements Initializable {
                 
                 else {
                 
-                //Executes adding customer query
-                if (checkForOverlap(addStartTime, addEndTime, addDate)) {
-                    Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
+                    //Executes adding appointment query
+                    if (checkForOverlap(addStartTime, addEndTime, addDate)) {
+                        Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
 
-                    //Refreshes screen, shows the new data in the table
-                    System.out.println("Add successful! Refresh page.");
-                    Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
-                    Scene scene = new Scene(parent);
-                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                    stage.setScene(scene);
-                    stage.show();
+                        //Refreshes screen, shows the new data in the table
+                        System.out.println("Add successful! Refresh page.");
+                        Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddAppointment.fxml"));
+                        Scene scene = new Scene(parent);
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.setScene(scene);
+                        stage.show();
 
-                    //Pop-up confirming that a new 
-                    appointmentAdded(addName);
+                        //Pop-up confirming that a new 
+                        appointmentAdded(addName);
 
-                    //Enable TableView, Edit, and Delete buttons, disable Save button
-                    custNamesTableView.setDisable(false);
-                    searchButton.setDisable(false);
-                    searchField.setDisable(false);
-                    selectCustomerButton.setDisable(false);
+                        //Enable TableView, Edit, and Delete buttons, disable Save button
+                        custNamesTableView.setDisable(false);
+                        searchButton.setDisable(false);
+                        searchField.setDisable(false);
+                        selectCustomerButton.setDisable(false);
 
-                    //set textfields to disabled once the Add Button is clicked
-                    titleField.setDisable(true);
-                    descriptionField.setDisable(true);
-                    contactField.setDisable(true);
-                    urlField.setDisable(true);
-                    locationField.setDisable(true);
-                    typeComboBox.setDisable(true);
-                    datePicker.setDisable(true);
-                    startTimeComboBox.setDisable(true);
-                    endTimeComboBox.setDisable(true);
-                    cancelButton.setDisable(true);
-                    addButton.setDisable(true); 
+                        //set textfields to disabled once the Add Button is clicked
+                        titleField.setDisable(true);
+                        descriptionField.setDisable(true);
+                        contactField.setDisable(true);
+                        urlField.setDisable(true);
+                        locationField.setDisable(true);
+                        typeComboBox.setDisable(true);
+                        datePicker.setDisable(true);
+                        startTimeComboBox.setDisable(true);
+                        endTimeComboBox.setDisable(true);
+                        cancelButton.setDisable(true);
+                        addButton.setDisable(true); 
                     }
-                else {
-                    appointmentTimeIssue("Appointment could not be scheduled due to overlap.");
+                    else {
+                        appointmentTimeIssue("Appointment could not be scheduled due to overlap.");
+                    }    
                 }
-                
             }
-                
-            }
-            
-   
         } catch (Exception e) {
             blankFieldError("URL", "add", "an appointment");
         }

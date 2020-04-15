@@ -2,15 +2,21 @@ package view_controller;
 
 import database.DatabaseConnection;
 import database.Query;
+import static database.Query.checkForOverlap;
 import static database.Query.deleteAppointment;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -38,6 +44,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import static model.Alerts.appointmentDeleted;
 import static model.Alerts.appointmentEdited;
+import static model.Alerts.appointmentTimeIssue;
 import static model.Alerts.blankFieldError;
 import static model.Alerts.nothingSearched;
 import static model.Alerts.nothingSelectedtoDelete;
@@ -104,9 +111,9 @@ public class ModifyAppointmentController implements Initializable {
     
     //Search Appointment table by type
         //Search function
-    public Appointment lookupType(String searchName) {
+    public Appointment lookupId(String searchId) {
             for (Appointment a : appointmentTable) {
-                if (a.getType().equalsIgnoreCase(searchName)) {
+                if (a.getId().equals(searchId)) {
                     return a;
                 }
             }
@@ -116,7 +123,7 @@ public class ModifyAppointmentController implements Initializable {
     @FXML private void handleSearchButton (ActionEvent event) throws IOException {
         String searchString = searchField.getText();
         if (!searchString.isEmpty()) {
-        appointmentTableView.getSelectionModel().select(lookupType(searchString));
+            appointmentTableView.getSelectionModel().select(lookupId(searchString));
         }
         else {
             nothingSearched();
@@ -181,11 +188,15 @@ public class ModifyAppointmentController implements Initializable {
             contactField.setText(selectedAppointment.getContact());
             typeComboBox.setValue(selectedAppointment.getType());
             urlField.setText(selectedAppointment.getUrl());
-            //datePicker.setValue(selectedAppointment.getDate());
-            //startTimeComboBox.setValue(selectedAppointment.getStart()); 
-            //endTimeComboBox.setValue(selectedAppointment.getEnd());
+            startTimeComboBox.setValue(selectedAppointment.getStart().substring(11,16) + ":00");
+            endTimeComboBox.setValue(selectedAppointment.getEnd().substring(11,16) + ":00");
             
-            
+            //Populate date picker
+            String dateString = selectedAppointment.getStart().substring(0,10);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate localDateObj = LocalDate.parse(dateString, dateTimeFormatter);
+            datePicker.setValue(localDateObj);
+
             //Set fields to editable
             titleField.setDisable(false);
             descriptionField.setDisable(false);
@@ -209,6 +220,7 @@ public class ModifyAppointmentController implements Initializable {
         catch (Exception e) {
             String s = "an appointment";
             nothingSelectedtoEdit(s);
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
@@ -240,6 +252,8 @@ public class ModifyAppointmentController implements Initializable {
         datePicker.setDisable(true);
         startTimeComboBox.setDisable(true);
         endTimeComboBox.setDisable(true);
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
         
         //Enable the TableView again and Search
         appointmentTableView.setDisable(false);
@@ -254,7 +268,6 @@ public class ModifyAppointmentController implements Initializable {
     @FXML private void handleSaveButton (ActionEvent event) throws IOException {
         
         try {
-            
             //Gather user-entered data from textfields
             String apptId = idField.getText();
             String custName = nameField.getText();
@@ -265,47 +278,68 @@ public class ModifyAppointmentController implements Initializable {
             String editType = typeComboBox.getValue().toString();
             String editLocation = locationField.getText();
             String editDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            int checkAddTime = startTimeComboBox.getSelectionModel().getSelectedIndex();
+            int checkEndTime = endTimeComboBox.getSelectionModel().getSelectedIndex();
             String editStartTime = startTimeComboBox.getValue().toString();
             String editEndTime = endTimeComboBox.getValue().toString();
             
-            //Adds new customer to the database
-            if (!editTitle.isEmpty() && !editDescription.isEmpty() && !editContact.isEmpty() && !editType.isEmpty() && !editLocation.isEmpty() && !editDate.isEmpty() && !editStartTime.isEmpty() && !editEndTime.isEmpty()) {
+            System.out.println("Start Time Index: " + checkAddTime + " End Time Index: " + checkEndTime);
 
-                //Executes adding customer query
-                Query.editAppointment(apptId, custName, editTitle, editDescription, editContact, editUrl, editType, editLocation, editDate, editStartTime, editEndTime);
-
-                //Refreshes screen, shows the new data in the table
-                System.out.println("Edit successful! Refresh page.");
-                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/ModifyAppointment.fxml"));
-                Scene scene = new Scene(parent);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-
-                //Pop-up confirming that a new 
-                appointmentEdited(apptId, custName);
-                
-                //set textfields to disabled once the Add Button is clicked
-                nameField.setDisable(true);
-                titleField.setDisable(true);
-                descriptionField.setDisable(true);
-                contactField.setDisable(true);
-                urlField.setDisable(true);
-                typeComboBox.setDisable(true);
-                locationField.setDisable(true);
-                datePicker.setDisable(true);
-                startTimeComboBox.setDisable(true);
-                endTimeComboBox.setDisable(true);
-                saveButton.setDisable(true);
-                cancelButton.setDisable(true);
+            if (editTitle.isEmpty() || editDescription.isEmpty() || editLocation.isEmpty() || editType.isEmpty() || editContact.isEmpty() || editDate.isEmpty() || editStartTime.isEmpty() || editEndTime.isEmpty()) {
+                blankFieldError("URL", "add", "an appointment");              
             }
+            
             else {
-                blankFieldError("URL", "modify", "an appointment");
-            }
+                
+                if (checkEndTime == checkAddTime) {          
+                    appointmentTimeIssue("Appointment start and end times cannot be the same.");
+                }
+                
+                else if (checkEndTime < checkAddTime){
+                    appointmentTimeIssue("Appointment start time must be earlier than the end time.");
+                }
+                
+                else {
+                                 
+                    //Adds new appointment to the database
+                    if (checkForOverlap(editStartTime, editEndTime, editDate)) {
+                        Query.editAppointment(apptId, custName, editTitle, editDescription, editContact, editUrl, editType, editLocation, editDate, editStartTime, editEndTime);
+
+                        //Refreshes screen, shows the new data in the table
+                        System.out.println("Edit successful! Refresh page.");
+                        Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/ModifyAppointment.fxml"));
+                        Scene scene = new Scene(parent);
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.setScene(scene);
+                        stage.show();
+
+                        //Pop-up confirming that a new 
+                        appointmentEdited(apptId, custName);
+
+                        //set textfields to disabled once the Save Button is clicked
+                        nameField.setDisable(true);
+                        titleField.setDisable(true);
+                        descriptionField.setDisable(true);
+                        contactField.setDisable(true);
+                        urlField.setDisable(true);
+                        typeComboBox.setDisable(true);
+                        locationField.setDisable(true);
+                        datePicker.setDisable(true);
+                        startTimeComboBox.setDisable(true);
+                        endTimeComboBox.setDisable(true);
+                        saveButton.setDisable(true);
+                        cancelButton.setDisable(true);
+                    }
+                    else {
+                        blankFieldError("URL", "modify", "an appointment");
+                    }
+                }
+            }            
         } catch (Exception e) {
             blankFieldError("URL", "modify", "an appointment");
         }
     }
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -320,6 +354,8 @@ public class ModifyAppointmentController implements Initializable {
         typeComboBox.setItems(Query.getTypes());
         urlField.setDisable(true);
         locationField.setDisable(true);
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
         
         
         datePicker.setDisable(true);
