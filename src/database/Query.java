@@ -217,11 +217,11 @@ public class Query {
                 
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
-                           "WHERE ('%s' BETWEEN start AND end) " +
-                           "OR ('%s' BETWEEN start AND end) " +
-                           "OR (start BETWEEN '%s' AND '%s') " +
-                           "OR (end BETWEEN '%s' AND '%s')",
-                           startTime, endTime, startTime, endTime, startTime, endTime));
+                           "WHERE ('%s' > start AND '%s' < end) " +
+                           "OR ('%s' < start AND '%s' > end) " +
+                           "OR ('%s' < start AND '%s' > start) " +
+                           "OR ('%s' < end AND '%s' > end)",
+                           startTime, startTime, endTime, endTime, startTime, endTime, startTime, endTime));
                 getOverlap.next();
                 System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
                 return false;
@@ -241,11 +241,11 @@ public class Query {
                 
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName, appointmentId FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
-                           "WHERE ('%s' BETWEEN start AND end) " +
-                           "OR ('%s' BETWEEN start AND end) " +
-                           "OR (start BETWEEN '%s' AND '%s') " +
-                           "OR (end BETWEEN '%s' AND '%s')",
-                           startTime, endTime, startTime, endTime, startTime, endTime));
+                           "WHERE ('%s' > start AND '%s' < end) " +
+                           "OR ('%s' < start AND '%s' > end) " +
+                           "OR ('%s' < start AND '%s' > start) " +
+                           "OR ('%s' < end AND '%s' > end)",
+                           startTime, startTime, endTime, endTime, startTime, endTime, startTime, endTime));
                 getOverlap.next();
                     if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId)) {
                             System.out.println("Save over yourself " + getOverlap.getString("customerName"));
