@@ -16,6 +16,33 @@ public class Alerts {
         alert.showAndWait();
     }
     
+    public static void blankFieldMessage(String s) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Error");
+        alert.setHeaderText("Blank Field");
+        alert.setContentText(s + " field was left blank.");  
+        alert.showAndWait();
+    }
+    
+    public static void fieldEntryError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Error");
+        alert.setHeaderText("Error adding data");
+        alert.setContentText(message);  
+        alert.showAndWait();
+    }
+    
+    public static void showException(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Error");
+        alert.setHeaderText("ERROR");
+        alert.setContentText(message);  
+        alert.showAndWait();
+    }
+    
     public static void customerAdded(String s) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initModality(Modality.NONE);

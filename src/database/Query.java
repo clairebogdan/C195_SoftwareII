@@ -3,6 +3,7 @@ package database;
 import static database.DatabaseConnection.conn;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import javafx.collections.FXCollections;
@@ -95,8 +96,8 @@ public class Query {
 
     
     //Add new Customer to the database
-    public static void addCustomer(String name, String address1, String address2, String zip, String city, String phone) {
-        try {
+    public static void addCustomer(String name, String address1, String address2, String zip, String city, String phone) throws SQLException {
+        //try {
             //1. Get the city ID, which is needed for inserting into the address table
             ResultSet getCityId = conn.createStatement().executeQuery(String.format("SELECT cityId FROM city WHERE city = '%s'", city));
             getCityId.next();
@@ -117,9 +118,9 @@ public class Query {
                     + "(customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', 1, '%s', '%s', '%s', '%s')", 
                     name, getAddressId.getString("addressId"), LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));    
-        } catch (Exception e) {
-            System.out.println("Error adding customer: " + e.getMessage());
-        }
+        //} catch (Exception e) {
+          //  System.out.println("Error adding customer: " + e.getMessage());
+        //}
     }
     
     

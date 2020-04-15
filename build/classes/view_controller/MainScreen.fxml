@@ -27,24 +27,27 @@
          </font></Button>
       <AnchorPane layoutY="168.0" prefHeight="332.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
          <children>
-            <ButtonBar layoutX="278.0" layoutY="19.0" prefHeight="40.0" prefWidth="200.0">
+            <ButtonBar layoutX="288.0" layoutY="21.0" prefHeight="40.0" prefWidth="200.0">
                <buttons>
                   <RadioButton fx:id="weeklyRadio" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="Weekly" textFill="WHITE" />
                   <RadioButton fx:id="monthlyRadio" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="Monthly" textFill="WHITE" />
                </buttons>
             </ButtonBar>
+            <Label fx:id="mainCalendarLabel" layoutX="35.0" layoutY="27.0" text="Appointments - Weekly" textFill="WHITE" underline="true">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </Label>
          </children></AnchorPane>
       <TableView fx:id="mainCalendarTableView" layoutX="35.0" layoutY="229.0" prefHeight="245.0" prefWidth="745.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
+          <TableColumn prefWidth="75.0" text="Monday" />
+          <TableColumn prefWidth="75.0" text="Tuesday" />
+            <TableColumn prefWidth="75.0" text="Wednesday" />
+            <TableColumn prefWidth="75.0" text="Thursday" />
+            <TableColumn prefWidth="75.0" text="Friday" />
         </columns>
       </TableView>
-      <Label fx:id="mainCalendarLabel" layoutX="35.0" layoutY="191.0" text="Appointments - Weekly" textFill="WHITE" underline="true">
-         <font>
-            <Font size="22.0" />
-         </font>
-      </Label>
       <ButtonBar layoutX="12.0" layoutY="108.0" prefHeight="40.0" prefWidth="775.0">
          <buttons>
             <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" text="Add Customer" />

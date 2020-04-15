@@ -26,7 +26,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import static model.Alerts.blankFieldError;
+import static model.Alerts.blankFieldMessage;
 import static model.Alerts.customerAdded;
+import static model.Alerts.fieldEntryError;
+import static model.Alerts.showException;
 import model.Customer;
 
 
@@ -86,42 +89,56 @@ public class AddCustomerController implements Initializable {
         cityComboBox.setItems(Query.getCities());
     }
     
-    @FXML private void handleAddButton (ActionEvent event) throws IOException {
-        
-        /*FIXME!
-        *Add button when empty is not triggering the blank field errors
-        */
-        
-        try{
+    @FXML private void handleAddButton (ActionEvent event) throws IOException, NullPointerException {
+    
+        try {    
             //Gather user-entered data from textfields
             String addName = nameField.getText();
             String addAddress1 = address1Field.getText();
             String addAddress2 = address2Field.getText();
             String addZip = zipField.getText();
             String addPhone = phoneField.getText();
-            String addCity = (String) cityComboBox.getValue().toString();
+            String addCity = cityComboBox.getValue().toString();
 
-            //Adds new customer to the database
-            if (!addName.isEmpty() && !addAddress1.isEmpty() && !addCity.isEmpty() && !addZip.isEmpty() && !addPhone.isEmpty()) {
+                try {
+                    if (!addName.isEmpty() && !addAddress1.isEmpty() && !addCity.isEmpty() && !addZip.isEmpty() && !addPhone.isEmpty()) {
+                        //Executes adding customer query
+                        Query.addCustomer(addName, addAddress1, addAddress2, addZip, addCity, addPhone);
 
-                //Executes adding customer query
-                Query.addCustomer(addName, addAddress1, addAddress2, addZip, addCity, addPhone);
+                        //Refreshes screen, shows the new data in the table
+                        System.out.println("Add successful! Refresh page.");
+                        Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddCustomer.fxml"));
+                        Scene scene = new Scene(parent);
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.setScene(scene);
+                        stage.show();
 
-                //Refreshes screen, shows the new data in the table
-                System.out.println("Add successful! Refresh page.");
-                Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/AddCustomer.fxml"));
-                Scene scene = new Scene(parent);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
+                        //Pop-up confirming that a new 
+                        customerAdded(addName);
+                    }
+                    else {
+                        if (addName.isEmpty()) blankFieldMessage("Name");
+                        if (addAddress1.isEmpty()) blankFieldMessage("Address Line 1");
+                        if (addZip.isEmpty()) blankFieldMessage("Zip Code");
+                        if (addPhone.isEmpty()) blankFieldMessage("Phone");
+                        if (addCity.isEmpty()) blankFieldMessage("City");
+                    }
+                    
+                //"throws" exception control (for rubric Part F is handled here)
+                } catch (SQLException s) {
+                    System.out.println("Couldn't add due to SQL Exception. Something wrong with fields");
 
-                //Pop-up confirming that a new 
-                customerAdded(addName);
-            }
-            else {
-                blankFieldError("Address Line 2", "add", "a customer");
-            }
-        } catch (Exception e) {
+                    if (s.getMessage().contains("postalCode")) {
+                        fieldEntryError(s.getMessage() + " (Zip Code)");
+                    }
+
+                    else {
+                        fieldEntryError(s.getMessage());
+                    }
+                }
+                
+        } catch (NullPointerException e) {
+            System.out.println("Add was clicked when a required field was empty");
             blankFieldError("Address Line 2", "add", "a customer");
         }
     }
