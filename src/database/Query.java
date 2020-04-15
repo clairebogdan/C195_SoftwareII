@@ -217,10 +217,10 @@ public class Query {
                 
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
-                           "WHERE ('%s' > start AND '%s' < end) " +
-                           "OR ('%s' < start AND '%s' > end) " +
-                           "OR ('%s' < start AND '%s' > start) " +
-                           "OR ('%s' < end AND '%s' > end)",
+                           "WHERE ('%s' >= start AND '%s' <= end) " +
+                           "OR ('%s' <= start AND '%s' >= end) " +
+                           "OR ('%s' <= start AND '%s' >= start) " +
+                           "OR ('%s' <= end AND '%s' >= end)",
                            startTime, startTime, endTime, endTime, startTime, endTime, startTime, endTime));
                 getOverlap.next();
                 System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
@@ -232,31 +232,38 @@ public class Query {
     
     
     
-    //***FIXME***Check for overlapping Appointments, but allows for saving the same time as before
+    //Check for overlapping Appointments, but allows for saving the same time as before
     public static boolean checkYourself(String startTime, String endTime, String date, String name, String apptId) {
             try {
                 
-                startTime = date + " " + startTime;
-                endTime = date + " " + endTime;
+                String startTimeDate = date + " " + startTime;
+                String endTimeDate = date + " " + endTime;
                 
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName, appointmentId FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
-                           "WHERE ('%s' > start AND '%s' < end) " +
-                           "OR ('%s' < start AND '%s' > end) " +
-                           "OR ('%s' < start AND '%s' > start) " +
-                           "OR ('%s' < end AND '%s' > end)",
-                           startTime, startTime, endTime, endTime, startTime, endTime, startTime, endTime));
+                           "WHERE ('%s' >= start AND '%s' <= end) " +
+                           "OR ('%s' <= start AND '%s' >= end) " +
+                           "OR ('%s' <= start AND '%s' >= start) " +
+                           "OR ('%s' <= end AND '%s' >= end)",
+                           startTimeDate, startTimeDate, endTimeDate, endTimeDate, startTimeDate, endTimeDate, startTimeDate, endTimeDate));
                 getOverlap.next();
-                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId)) {
-                            System.out.println("Save over yourself " + getOverlap.getString("customerName"));
+                String checkStart = getOverlap.getString("start").substring(11,16) + ":00";
+                String checkEnd = getOverlap.getString("end").substring(11,16) + ":00";
+                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId) && checkStart.equals(startTime) || checkEnd.equals(endTime)) {
+                            System.out.println("A time wasn't changed. Save over self: " + getOverlap.getString("customerName"));
                             return true;
                     }
                     else {
+                        System.out.println("Went to else");
+                        System.out.println(getOverlap.getString("customerName") + " " + name + " " + getOverlap.getString("appointmentId") + " " + apptId + " "  + checkStart + " " + startTime + " " + checkEnd + " " + endTime);
                         return false;
                     }
+                
             } catch (Exception e) {
-            return true;
+                //SQL returned a null set, meaning the appointment can be made here
+                return true;
         }
+            
     }
     
     
