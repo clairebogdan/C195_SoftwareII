@@ -225,7 +225,7 @@ public class Query {
     
     
     
-    //Do not allow appointments outside of UTC 9:00 - 17:00 hours
+    //Checks to make sure the start and end times the user selected are within business hours (9:00-17:00 UTD)
     public static boolean insideBusinessHours(String startTime, String endTime, String date) {
         
         //convert start and end times selected to UTC equivalents
@@ -233,6 +233,7 @@ public class Query {
         LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
         String UTCstart = localStart.toString().substring(11,16);
         String UTCend = localEnd.toString().substring(11,16);
+       
         //Compare by using LocalTime datatypes
         LocalTime enteredStart = LocalTime.parse(UTCstart);
         LocalTime enteredEnd = LocalTime.parse(UTCend);
@@ -400,226 +401,20 @@ public class Query {
     public static String reportApptTypesByMonth(){
         try {
             
-            //Header, also a container to be appended to
-            String text = "Month          | Beginner - #     | Intermediate - #     | Advanced - #\n______________________________________________________________________\n";
-            
-            //Containers
             ObservableList<String> report1 = FXCollections.observableArrayList();
             
-            ObservableList<String> JanB = FXCollections.observableArrayList();
-            ObservableList<String> JanI = FXCollections.observableArrayList();
-            ObservableList<String> JanA = FXCollections.observableArrayList();
+            //Header, also a container to be appended to
+            StringBuilder report1text = new StringBuilder();
+            report1text.append("Month    | # of each Type  \n______________________________________________________________________\n");
             
-            ObservableList<String> FebB = FXCollections.observableArrayList();
-            ObservableList<String> FebI = FXCollections.observableArrayList();
-            ObservableList<String> FebA = FXCollections.observableArrayList();
-            
-            ObservableList<String> MarB = FXCollections.observableArrayList();
-            ObservableList<String> MarI = FXCollections.observableArrayList();
-            ObservableList<String> MarA = FXCollections.observableArrayList();
-            
-            ObservableList<String> AprB = FXCollections.observableArrayList();
-            ObservableList<String> AprI = FXCollections.observableArrayList();
-            ObservableList<String> AprA = FXCollections.observableArrayList();
-            
-            ObservableList<String> MayB = FXCollections.observableArrayList();
-            ObservableList<String> MayI= FXCollections.observableArrayList();
-            ObservableList<String> MayA = FXCollections.observableArrayList();
-            
-            ObservableList<String> JunB = FXCollections.observableArrayList();
-            ObservableList<String> JunI = FXCollections.observableArrayList();
-            ObservableList<String> JunA = FXCollections.observableArrayList();
-            
-            ObservableList<String> JulB = FXCollections.observableArrayList();
-            ObservableList<String> JulI = FXCollections.observableArrayList();
-            ObservableList<String> JulA = FXCollections.observableArrayList();
-            
-            ObservableList<String> AugB = FXCollections.observableArrayList();
-            ObservableList<String> AugI = FXCollections.observableArrayList();
-            ObservableList<String> AugA = FXCollections.observableArrayList();
-            
-            ObservableList<String> SeptB = FXCollections.observableArrayList();
-            ObservableList<String> SeptI = FXCollections.observableArrayList();
-            ObservableList<String> SeptA = FXCollections.observableArrayList();
-            
-            ObservableList<String> OctB = FXCollections.observableArrayList();
-            ObservableList<String> OctI = FXCollections.observableArrayList();
-            ObservableList<String> OctA = FXCollections.observableArrayList();
-            
-            ObservableList<String> NovB = FXCollections.observableArrayList();
-            ObservableList<String> NovI = FXCollections.observableArrayList();
-            ObservableList<String> NovA = FXCollections.observableArrayList();
-            
-            ObservableList<String> DecB = FXCollections.observableArrayList();
-            ObservableList<String> DecI = FXCollections.observableArrayList();
-            ObservableList<String> DecA = FXCollections.observableArrayList();
-            
-            //SQL statement to get the start date/time
-            ResultSet getTypeAndMonth = conn.createStatement().executeQuery(String.format("SELECT type, MONTH(start) month FROM appointment;"));
-            
-            while (getTypeAndMonth.next()) {
-                String monthNum = getTypeAndMonth.getString("month");
-                String type = getTypeAndMonth.getString("type");
-                System.out.println("Month #" + monthNum + " Type: " + type);
-                report1.add(monthNum + " " + type);   
+            //Get Month, Type, and Amount
+            ResultSet rs = conn.createStatement().executeQuery(String.format("SELECT MONTHNAME(start) as Month, type, COUNT(*) as Amount\n" +
+                                                                                        "FROM appointment GROUP BY MONTH(start), type;"));
+            while (rs.next()) {
+                report1text.append(rs.getString("Month") + "          " + rs.getString("Amount") + "   " + rs.getString("type") + "\n");
             }
-            
-            //Add data to month containers depending on the numerical month MM
-            for (int i = 0; i < report1.size(); i++) {
-                switch (report1.get(i).substring(0,1)) {
-                    case "1":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            JanB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            JanI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            JanA.add(report1.get(i));
-                        }
-                        break;
-                    case "2":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            FebB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            FebI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            FebA.add(report1.get(i));
-                        }
-                        break;
-                    case "3":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            MarB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            MarI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            MarA.add(report1.get(i));
-                        }
-                        break;
-                    case "4":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            AprB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            AprI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            AprA.add(report1.get(i));
-                        }
-                        break;
-                    case "5":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            MayB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            MayI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            MayA.add(report1.get(i));
-                        }
-                        break;
-                    case "6":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            JunB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            JunI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            JunA.add(report1.get(i));
-                        }
-                        break;
-                    case "7":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            JulB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            JulI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            JulA.add(report1.get(i));
-                        }
-                        break;
-                    case "8":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            AugB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            AugI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            AugA.add(report1.get(i));
-                        }
-                        break;
-                    case "9":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            SeptB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            SeptI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            SeptA.add(report1.get(i));
-                        }
-                        break;
-                    case "10":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            OctB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            OctI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            OctA.add(report1.get(i));
-                        }
-                        break;
-                    case "11":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            NovB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            NovI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            NovA.add(report1.get(i));
-                        }
-                        break;
-                    case "12":
-                        if (report1.get(i).substring(2,3).equals("B")) {
-                            DecB.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("I")) {
-                            DecI.add(report1.get(i));
-                        }
-                        if (report1.get(i).substring(2,3).equals("A")) {
-                            DecA.add(report1.get(i));
-                        }
-                        break;
-                    default:
-                        System.out.println("This didn't work");
-                }
-            }
-                        
-            //Append the printout text
-            text = text + 
-                    "January          | Beginner - " + JanB.size() + "     | Intermediate - " + JanI.size() + "     | Advanced - " + JanA.size() + "\n" +
-                    "February         | Beginner - " + FebB.size() + "     | Intermediate - " + FebI.size() + "     | Advanced - " + FebA.size() + "\n" +
-                    "March             | Beginner - " + MarB.size() + "     | Intermediate - " + MarI.size() + "     | Advanced - " + MarA.size() + "\n" +
-                    "April                | Beginner - " + AprB.size() + "     | Intermediate - " + AprI.size() + "     | Advanced - " + AprA.size() + "\n" +
-                    "May                 | Beginner - " + MayB.size() + "     | Intermediate - " + MayI.size() + "     | Advanced - " + MayA.size() + "\n" +
-                    "June                | Beginner - " + JunB.size() + "     | Intermediate - " + JunI.size() + "     | Advanced - " + JunA.size() + "\n" +
-                    "July                 | Beginner - " + JulB.size() + "     | Intermediate - " + JulI.size() + "     | Advanced - " + JulA.size() + "\n" +
-                    "August             | Beginner - " + AugB.size() + "     | Intermediate - " + AugI.size() + "     | Advanced - " + AugA.size() + "\n" +
-                    "September      | Beginner - " + SeptB.size() + "     | Intermediate - " + SeptI.size() + "     | Advanced - " + SeptA.size() + "\n" +
-                    "October           | Beginner - " + OctB.size() + "     | Intermediate - " + OctI.size() + "     | Advanced - " + OctA.size() + "\n" +
-                    "November       | Beginner - " + NovB.size() + "     | Intermediate - " + NovI.size() + "     | Advanced - " + NovA.size() + "\n" +
-                    "December       | Beginner - " + DecB.size() + "     | Intermediate - " + DecI.size() + "     | Advanced - " + DecA.size() + "\n"; 
-            
-            return text;
+
+            return report1text.toString();
             
         } catch (Exception e) {
             System.out.println("Error getting report: " + e.getMessage());
