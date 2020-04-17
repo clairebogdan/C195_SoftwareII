@@ -3,6 +3,7 @@ package view_controller;
 import database.DatabaseConnection;
 import database.Query;
 import static database.Query.checkForOverlap;
+import static database.Query.insideBusinessHours;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -34,7 +35,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import static model.Alerts.appointmentAdded;
 import static model.Alerts.appointmentTimeIssue;
 import static model.Alerts.blankFieldError;
@@ -43,7 +43,6 @@ import static model.Alerts.nothingSelectedtoEdit;
 import model.Appointment;
 import model.Customer;
 import model.LocalDateTime_Interface;
-import static model.TransformTime.UTCtoLDT;
 
 
 public class AddAppointmentController implements Initializable {
@@ -260,11 +259,11 @@ public class AddAppointmentController implements Initializable {
                     else if (checkEndTime < checkAddTime){
                     appointmentTimeIssue("Appointment start time must be earlier than the end time.");
                     }
-
-                    else {
+                    
+                    else {                     
                 
                         //Executes adding appointment query
-                        if (checkForOverlap(addStartTime, addEndTime, addDate)) {
+                        if (checkForOverlap(addStartTime, addEndTime, addDate) && insideBusinessHours(addStartTime, addEndTime, addDate)) {
                             try {
                                 Query.addAppointment(addId, addName, addTitle, addDescription, addLocation, addContact, addType, addURL, addDate, addStartTime, addEndTime);
                             
@@ -303,7 +302,9 @@ public class AddAppointmentController implements Initializable {
                             }
                         }      
                         else {
-                            appointmentTimeIssue("Appointment could not be scheduled due to overlap.");
+                            if (!checkForOverlap(addStartTime, addEndTime, addDate)) { appointmentTimeIssue("Appointment could not be scheduled due to overlap with another existing appiontment."); }
+                            if (!insideBusinessHours(addStartTime, addEndTime, addDate)) { appointmentTimeIssue("Appointment could not be scheduled because the start and/or end times are outside of business hours.\n"
+                                    + "Business hours are 9:00 - 17:00 UTC time."); }
                         }
                     }
                 }

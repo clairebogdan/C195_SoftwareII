@@ -2,22 +2,19 @@ package view_controller;
 
 import database.DatabaseConnection;
 import database.Query;
-import static database.Query.checkForOverlap;
 import static database.Query.checkYourself;
 import static database.Query.deleteAppointment;
+import static database.Query.insideBusinessHours;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -53,7 +50,6 @@ import static model.Alerts.nothingSelectedtoDelete;
 import static model.Alerts.nothingSelectedtoEdit;
 import model.Appointment;
 import model.LocalDateTime_Interface;
-import static model.TransformTime.UTCtoLDT;
 
 
 
@@ -170,7 +166,7 @@ public class ModifyAppointmentController implements Initializable {
                 } 
                 else {}
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             String s = "an appointment";
             nothingSelectedtoDelete(s);
         }
@@ -306,7 +302,7 @@ public class ModifyAppointmentController implements Initializable {
                 else {
                                  
                     //Adds new appointment to the database
-                    if (checkYourself(editStartTime, editEndTime, editDate, custName, apptId)) {
+                    if (checkYourself(editStartTime, editEndTime, editDate, custName, apptId) && insideBusinessHours(editStartTime, editEndTime, editDate)) {
                         Query.editAppointment(apptId, custName, editTitle, editDescription, editContact, editUrl, editType, editLocation, editDate, editStartTime, editEndTime);
 
                         //Refreshes screen, shows the new data in the table
@@ -335,8 +331,9 @@ public class ModifyAppointmentController implements Initializable {
                         cancelButton.setDisable(true);
                     }
                     else {
-                        //Pop-up letting the user know of the appointment overlap.
-                        appointmentOverlap();
+                        if (!checkYourself(editStartTime, editEndTime, editDate, custName, apptId)) { appointmentTimeIssue("Appointment could not be scheduled due to overlap with another existing appiontment."); }
+                        if (!insideBusinessHours(editStartTime, editEndTime, editDate)) { appointmentTimeIssue("Appointment could not be scheduled because the start and/or end times are outside of business hours.\n"
+                                    + "Business hours are 9:00 - 17:00 UTC time"); }
                     }
                 }
             }            

@@ -5,12 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import static model.Alerts.appointmentSoon;
-import model.TransformTime;
 import model.User;
 
 public class Query {
@@ -43,7 +47,7 @@ public class Query {
                 else {
                     return false;
                 }
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | SQLException e) {
                 System.out.println("Error: " + e.getMessage());
                 return false;
             }
@@ -63,7 +67,7 @@ public class Query {
             appointmentSoon(name);
             
             return true;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("You don't have an appointment soon.");
             return false;
         }
@@ -83,7 +87,7 @@ public class Query {
             while (cityList.next()) {
                 cities.add(cityList.getString("city"));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
         return cities;
@@ -188,11 +192,12 @@ public class Query {
     public static ObservableList<String> getTimes() {
         try {     
             times.removeAll(times); //prevents cities from copying themselves to the list
-            for (int i = 9; i < 17; i++ ) {
+            for (int i = 0; i < 24; i++ ) {
                 String hour;
                     if(i < 10) {                   
                         hour = "0" + i;
                     }
+                    
                     else {
                         hour = Integer.toString(i);
                     }
@@ -201,12 +206,49 @@ public class Query {
                     times.add(hour + ":30:00");
                     times.add(hour + ":45:00");
                 }
+            times.add("24:00:00"); //add midnight to the list
                 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
         return times;
         }
+    
+    
+    
+    //Converts user's localdatetime to UTC 
+    public static LocalDateTime stringToLDT_UTC(String time, String date) {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime ldt =  LocalDateTime.parse(date + " " + time, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+        return ldt;
+    }
+    
+    
+    
+    //Do not allow appointments outside of UTC 9:00 - 17:00 hours
+    public static boolean insideBusinessHours(String startTime, String endTime, String date) {
+        
+        //convert start and end times selected to UTC equivalents
+        LocalDateTime localStart = stringToLDT_UTC(startTime, date);
+        LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
+        String UTCstart = localStart.toString().substring(11,16);
+        String UTCend = localEnd.toString().substring(11,16);
+        //Compare by using LocalTime datatypes
+        LocalTime enteredStart = LocalTime.parse(UTCstart);
+        LocalTime enteredEnd = LocalTime.parse(UTCend);
+        LocalTime openingHour = LocalTime.parse("08:59");
+        LocalTime closingHour = LocalTime.parse("16:59");
+        Boolean startTimeAllowed = enteredStart.isAfter(openingHour);
+        Boolean endTimeAllowed = enteredEnd.isBefore(closingHour);
+        
+        if (startTimeAllowed && endTimeAllowed) {
+            return true;
+        }
+        else {
+            return false;
+        }
+        
+    }
 
     
     
@@ -215,8 +257,8 @@ public class Query {
             try {
                 
                 //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-                LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
-                LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
+                LocalDateTime localStart = stringToLDT_UTC(startTime, date);
+                LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
                 String UTCstart = localStart.toString();
                 String UTCend = localEnd.toString();
 
@@ -232,8 +274,9 @@ public class Query {
                 System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
                 return false;
             } catch (SQLException e) {
-            return true;
-        }
+                System.out.println("There are no appointment conflicts.");
+                return true;
+            }
     }
     
     
@@ -243,8 +286,8 @@ public class Query {
             try {
                 
                 //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-                LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
-                LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
+                LocalDateTime localStart = stringToLDT_UTC(startTime, date);
+                LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
                 String UTCstart = localStart.toString();
                 String UTCend = localEnd.toString();
 
@@ -271,7 +314,7 @@ public class Query {
                         return false;
                     }
                 
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 //SQL returned a null set, meaning the appointment can be made here
                 return true;
         }
@@ -284,8 +327,8 @@ public class Query {
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) throws SQLException {
             
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
-            LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
+            LocalDateTime localStart = stringToLDT_UTC(startTime, date);
+            LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
             String UTCstart = localStart.toString();
             String UTCend = localEnd.toString();
             
@@ -316,8 +359,8 @@ public class Query {
     public static void editAppointment(String apptId, String custName, String title, String description, String contact, String url, String type, String location, String date, String startTime, String endTime) {
         try {
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
-            LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
+            LocalDateTime localStart = stringToLDT_UTC(startTime, date);
+            LocalDateTime localEnd = stringToLDT_UTC(endTime, date);
             String UTCstart = localStart.toString();
             String UTCend = localEnd.toString();
             

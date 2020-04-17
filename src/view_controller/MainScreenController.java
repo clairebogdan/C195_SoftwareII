@@ -34,7 +34,6 @@ import javafx.stage.Stage;
 import static model.Alerts.noResults;
 import model.Appointment;
 import model.LocalDateTime_Interface;
-import static model.TransformTime.UTCtoLDT;
 import model.User;
 
 
