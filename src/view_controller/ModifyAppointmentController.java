@@ -90,6 +90,7 @@ public class ModifyAppointmentController implements Initializable {
     @FXML private TableColumn<Appointment, String> contactCol;
     @FXML private TableColumn<Appointment, String> typeCol;
     @FXML private TableColumn<Appointment, String> urlCol;
+    @FXML private TableColumn<Appointment, String> dateCol;
     @FXML private TableColumn<Appointment, String> startCol;
     @FXML private TableColumn<Appointment, String> endCol;
     
@@ -190,13 +191,12 @@ public class ModifyAppointmentController implements Initializable {
             contactField.setText(selectedAppointment.getContact());
             typeComboBox.setValue(selectedAppointment.getType());
             urlField.setText(selectedAppointment.getUrl());
-            startTimeComboBox.setValue(selectedAppointment.getStart().substring(11,16) + ":00");
-            endTimeComboBox.setValue(selectedAppointment.getEnd().substring(11,16) + ":00");
+            startTimeComboBox.setValue(selectedAppointment.getStart() + ":00");
+            endTimeComboBox.setValue(selectedAppointment.getEnd() + ":00");
             
             //Populate date picker
-            String dateString = selectedAppointment.getStart().substring(0,10);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate localDateObj = LocalDate.parse(dateString, dateTimeFormatter);
+            String dateString = selectedAppointment.getDate();
+            LocalDate localDateObj = LocalDate.parse(dateString);
             datePicker.setValue(localDateObj);
 
             //Set fields to editable
@@ -338,7 +338,7 @@ public class ModifyAppointmentController implements Initializable {
                     }
                 }
             }            
-        } catch (Exception e) {
+        } catch (IOException e) {
             blankFieldError("URL", "modify", "an appointment");
             System.out.println("Error in the catch: " + e.getMessage());
         }
@@ -360,10 +360,14 @@ public class ModifyAppointmentController implements Initializable {
         locationField.setDisable(true);
         saveButton.setDisable(true);
         cancelButton.setDisable(true);
-        
-        
         datePicker.setDisable(true);
         datePicker.getEditor().setEditable(false);
+        startTimeComboBox.setDisable(true);
+        startTimeComboBox.setItems(Query.getTimes());
+        endTimeComboBox.setDisable(true);
+        endTimeComboBox.setItems(Query.getTimes());
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
         
         //Disables past dates and weekends from being selected
         datePicker.setDayCellFactory(picker -> new DateCell() {
@@ -375,22 +379,26 @@ public class ModifyAppointmentController implements Initializable {
                     setDisable(true);
             }
         });
-        startTimeComboBox.setDisable(true);
-        startTimeComboBox.setItems(Query.getTimes());
-        endTimeComboBox.setDisable(true);
-        endTimeComboBox.setItems(Query.getTimes());
-        saveButton.setDisable(true);
-        cancelButton.setDisable(true);
+        
         
         
         //Populate Appointment table using the database
         Connection con;
         try {
             con = DatabaseConnection.getConnection();
-            ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, contact, type, url, start, end\n" +
+            ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, contact, type, url, DATE(start) date, start, end\n" +
                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
            
             while (rs.next()) {
+                //Convert UTC timestamp from database to user's local datetime
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime localStart =  LocalDateTime.parse(rs.getString("start"), format);
+                LocalDateTime localEnd =  LocalDateTime.parse(rs.getString("end"), format);
+                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                String zonedStartString = zonedStart.toString().substring(11,16);
+                String zonedEndString = zonedEnd.toString().substring(11,16);
+                
                 appointmentTable.add(new Appointment(rs.getString("appointmentId"), 
                                                      rs.getString("customerName"), 
                                                      rs.getString("title"), 
@@ -399,8 +407,9 @@ public class ModifyAppointmentController implements Initializable {
                                                      rs.getString("contact"), 
                                                      rs.getString("type"), 
                                                      rs.getString("url"),
-                                                     rs.getString("start"),
-                                                     rs.getString("end")));
+                                                     rs.getString("date"),
+                                                     zonedStartString,
+                                                     zonedEndString));
             }
         } catch (SQLException ex) {
             Logger.getLogger(ModifyAppointmentController.class.getName()).log(Level.SEVERE, null, ex);
@@ -414,6 +423,7 @@ public class ModifyAppointmentController implements Initializable {
             contactCol.setCellValueFactory(new PropertyValueFactory<>("contact"));
             typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
             urlCol.setCellValueFactory(new PropertyValueFactory<>("url"));
+            dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
             startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
             endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
             

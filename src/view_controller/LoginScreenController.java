@@ -1,6 +1,7 @@
 package view_controller;
 
 import database.DatabaseConnection;
+import static database.Query.appointmentInFifteen;
 import static database.Query.login;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -104,6 +105,14 @@ public class LoginScreenController implements Initializable {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
             stage.show();
+            
+            //Alerts the user if they logged in within 15 minutes of a scheduled appointment
+            if (appointmentInFifteen()) {
+                System.out.println("User alerted");
+            }
+            else {
+                System.out.println("User not alerted of any appointment soon.");
+            }
         }
         else {
             //Username or password field(s) left blank

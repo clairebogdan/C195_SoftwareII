@@ -37,9 +37,10 @@
             <TableColumn fx:id="locCol" prefWidth="67.0" text="Location" />
             <TableColumn fx:id="contactCol" prefWidth="72.0" text="Contact" />
             <TableColumn fx:id="typeCol" prefWidth="98.0" text="Type" />
-            <TableColumn fx:id="urlCol" prefWidth="46.0" text="URL" />
-            <TableColumn fx:id="startCol" prefWidth="192.0" text="Start Date/Time" />
-            <TableColumn fx:id="endCol" prefWidth="187.0" text="End Date/Time" />
+            <TableColumn fx:id="urlCol" prefWidth="110.0" text="URL" />
+            <TableColumn fx:id="dateCol" prefWidth="129.0" text="Date" />
+            <TableColumn fx:id="startCol" prefWidth="91.0" text="Start Time" />
+            <TableColumn fx:id="endCol" prefWidth="95.0" text="End Time" />
         </columns>
       </TableView>
       <Button fx:id="returnButton" layoutX="4.0" layoutY="3.0" mnemonicParsing="false" onAction="#handleReturnButton" prefHeight="17.0" prefWidth="78.0" text="Return to Main">

@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -57,7 +60,7 @@ public class Query {
             ResultSet earliestAppt = conn.createStatement().executeQuery(String.format("SELECT customerName "
                     + "FROM customer c INNER JOIN appointment a ON c.customerId=a.customerId INNER JOIN user u ON a.userId=u.userId "
                     + "WHERE a.userId='%s' AND a.start BETWEEN '%s' AND '%s'",
-                    User.getCurrentUserid(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(15)));
+                    User.getCurrentUserid(), LocalDateTime.now(ZoneId.of("UTC")), LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(15)));
             earliestAppt.next();
             
             String name = earliestAppt.getString("customerName");
@@ -118,9 +121,7 @@ public class Query {
                     + "(customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', 1, '%s', '%s', '%s', '%s')", 
                     name, getAddressId.getString("addressId"), LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));    
-        //} catch (Exception e) {
-          //  System.out.println("Error adding customer: " + e.getMessage());
-        //}
+
     }
     
     
@@ -128,23 +129,23 @@ public class Query {
     //Delete existing Customer from the database
     public static void deleteCustomer(String id){
         try {
-            //1. Delete from any appointments for the customer
-            conn.createStatement().executeUpdate(String.format("DELETE FROM appointment"
-                    + " WHERE customerId='%s'", id));
-        } catch (Exception e) {
-            System.out.println("This customer did not have any appointments.");
-        }
-        
-        try {
+            //1. Get address id
+            ResultSet getAddressId = conn.createStatement().executeQuery(String.format("SELECT addressId FROM customer WHERE customerId='%s'", id));
+            getAddressId.next();
+            
             //2. Delete the customer
             conn.createStatement().executeUpdate(String.format("DELETE FROM customer"
                     + " WHERE customerId='%s'", id));
-            
-            //3. Delete from address table
+
+            //3. Delete the customer's address
             conn.createStatement().executeUpdate(String.format("DELETE FROM address"
-                    + " WHERE addressId='%s'", id));
-              
-        } catch (Exception e) {
+                    + " WHERE addressId='%s'", getAddressId.getString("addressId")));
+            
+            //4. Delete any appointments for the customer
+            conn.createStatement().executeUpdate(String.format("DELETE FROM appointment"
+                    + " WHERE customerId='%s'", id));
+            
+        } catch (SQLException e) {
             System.out.println("Error deleting customer: " + e.getMessage());
         }
     }
@@ -220,20 +221,30 @@ public class Query {
     public static boolean checkForOverlap(String startTime, String endTime, String date) {
             try {
                 
-                startTime = date + " " + startTime;
-                endTime = date + " " + endTime;
-                
+                //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
+                String dateAndStartTime = date + " " + startTime;
+                String dateAndEndTime = date + " " + endTime;
+
+                //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+                LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+
+                String UTCstart = localStart.toString();
+                String UTCend = localEnd.toString();
+
+                //3. Look for overlap
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
                            "WHERE ('%s' >= start AND '%s' <= end) " +
                            "OR ('%s' <= start AND '%s' >= end) " +
                            "OR ('%s' <= start AND '%s' >= start) " +
                            "OR ('%s' <= end AND '%s' >= end)",
-                           startTime, startTime, endTime, endTime, startTime, endTime, startTime, endTime));
+                           UTCstart, UTCstart, UTCend, UTCend, UTCstart, UTCend, UTCstart, UTCend));
                 getOverlap.next();
                 System.out.println("APPOINTMENT OVERLAP: " + getOverlap.getString("customerName"));
                 return false;
-            } catch (Exception e) {
+            } catch (SQLException e) {
             return true;
         }
     }
@@ -244,26 +255,38 @@ public class Query {
     public static boolean checkYourself(String startTime, String endTime, String date, String name, String apptId) {
             try {
                 
-                String startTimeDate = date + " " + startTime;
-                String endTimeDate = date + " " + endTime;
-                
+                //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
+                String dateAndStartTime = date + " " + startTime;
+                String dateAndEndTime = date + " " + endTime;
+
+                //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+                LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+
+                String UTCstart = localStart.toString();
+                String UTCend = localEnd.toString();
+
+                //3. Look for overlap
                 ResultSet getOverlap = conn.createStatement().executeQuery(String.format(
                            "SELECT start, end, customerName, appointmentId FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId " +
                            "WHERE ('%s' >= start AND '%s' <= end) " +
                            "OR ('%s' <= start AND '%s' >= end) " +
                            "OR ('%s' <= start AND '%s' >= start) " +
                            "OR ('%s' <= end AND '%s' >= end)",
-                           startTimeDate, startTimeDate, endTimeDate, endTimeDate, startTimeDate, endTimeDate, startTimeDate, endTimeDate));
+                           UTCstart, UTCstart, UTCend, UTCend, UTCstart, UTCend, UTCstart, UTCend));
                 getOverlap.next();
-                String checkStart = getOverlap.getString("start").substring(11,16) + ":00";
-                String checkEnd = getOverlap.getString("end").substring(11,16) + ":00";
-                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId) && checkStart.equals(startTime) || checkEnd.equals(endTime)) {
+                String checkStart = getOverlap.getString("start").substring(0,16);
+                String checkUTCstart = UTCstart.replace('T', ' ');
+                String checkEnd = getOverlap.getString("end").substring(0,16);
+                String checkUTCend = UTCend.replace('T', ' ');
+                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId) && checkStart.equals(checkUTCstart) || checkEnd.equals(checkUTCend)) {
                             System.out.println("A time wasn't changed. Save over self: " + getOverlap.getString("customerName"));
                             return true;
                     }
                     else {
                         System.out.println("Went to else");
-                        System.out.println(getOverlap.getString("customerName") + " " + name + " " + getOverlap.getString("appointmentId") + " " + apptId + " "  + checkStart + " " + startTime + " " + checkEnd + " " + endTime);
+                        System.out.println(getOverlap.getString("customerName") + " " + name + " " + getOverlap.getString("appointmentId") + " " + apptId + " "  + checkStart + " " + checkUTCstart + " " + checkEnd + " " + checkUTCend);
                         return false;
                     }
                 
@@ -277,23 +300,29 @@ public class Query {
     
     
     //Adding an Appointment to the database
-    public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) {
-        try {
+    public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) throws SQLException {
             
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            String dateAndStartTime, dateAndEndTime;
-            dateAndStartTime = date + " " + startTime;
-            dateAndEndTime = date + " " + endTime;
+            String dateAndStartTime = date + " " + startTime;
+            String dateAndEndTime = date + " " + endTime;
             
+            System.out.println("Original date and start time: " + dateAndStartTime);
+            
+            //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+          
+            String UTCstart = localStart.toString();
+            String UTCend = localEnd.toString();
+            
+            System.out.println("Converted date and start time (UTC): " + UTCstart);
 
-            //2. Insert  data into the appointment table
+            //3. Insert  data into the appointment table
             conn.createStatement().executeUpdate(String.format("INSERT INTO appointment "
                     + "(customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) " +
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                    id, User.getCurrentUserid(), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));  
-        } catch (Exception e) {
-            System.out.println("Error adding appointment: " + e.getMessage());
-        }
+                    id, User.getCurrentUserid(), title, description, location, contact, type, url, UTCstart, UTCend, LocalDateTime.now(), User.getCurrentUsername(), LocalDateTime.now(), User.getCurrentUsername()));  
     }
     
     
@@ -314,21 +343,32 @@ public class Query {
     public static void editAppointment(String apptId, String custName, String title, String description, String contact, String url, String type, String location, String date, String startTime, String endTime) {
         try {
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            String dateAndStartTime, dateAndEndTime;
-            dateAndStartTime = date + " " + startTime;
-            dateAndEndTime = date + " " + endTime;
+            String dateAndStartTime = date + " " + startTime;
+            String dateAndEndTime = date + " " + endTime;
             
+            System.out.println("Chosen for edit date and start time: " + dateAndStartTime);
             
-            //2. Get customer ID, which is needed for inserting into the appointment table
+            //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+          
+            String UTCstart = localStart.toString();
+            String UTCend = localEnd.toString();
+            
+            System.out.println("Converted date and start time (UTC): " + UTCstart);
+
+            
+            //3. Get customer ID, which is needed for inserting into the appointment table
             ResultSet getCustomerId = conn.createStatement().executeQuery(String.format("SELECT customerId FROM appointment WHERE appointmentId = '%s'", apptId));
             getCustomerId.next();
 
-            //3. Insert  data into the appointment table
+            //4. Insert  data into the appointment table
             conn.createStatement().executeUpdate(String.format("UPDATE appointment "
                     + "SET customerId='%s', userId='%s', title='%s', description='%s', location='%s', contact='%s', type='%s', url='%s', start='%s', end='%s', lastUpdate='%s', lastUpdateBy='%s' " +
                     "WHERE appointmentId='%s'", 
-                    getCustomerId.getString("customerId"), User.getCurrentUserid(), title, description, location, contact, type, url, dateAndStartTime, dateAndEndTime, LocalDateTime.now(), User.getCurrentUsername(), apptId));  
-        } catch (Exception e) {
+                    getCustomerId.getString("customerId"), User.getCurrentUserid(), title, description, location, contact, type, url, UTCstart, UTCend, LocalDateTime.now(), User.getCurrentUsername(), apptId));  
+        } catch (SQLException e) {
             System.out.println("Error editing appointment: " + e.getMessage());
         }
     }
@@ -720,15 +760,3 @@ public class Query {
         }
     }        
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-

@@ -5,11 +5,10 @@
         <group>
             <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/model/Alerts.java</file>
             <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/view_controller/AddAppointmentController.java</file>
+            <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/view_controller/ModifyAppointmentController.java</file>
             <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/model/Appointment.java</file>
-            <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/view_controller/AddCustomerController.java</file>
             <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/database/Query.java</file>
             <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/view_controller/MainScreenController.java</file>
-            <file>file:/Users/clairebogdan/NetBeansProjects/Appointment_Management_System/src/model/Customer.java</file>
         </group>
     </open-files>
 </project-private>

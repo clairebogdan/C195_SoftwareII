@@ -95,12 +95,13 @@
                 <TableColumn fx:id="nameCol" prefWidth="112.0" text="Customer" />
                   <TableColumn fx:id="titleCol" prefWidth="70.0" text="Title" />
                   <TableColumn fx:id="descriptionCol" prefWidth="85.0" text="Description" />
-                  <TableColumn fx:id="locationCol" prefWidth="74.0" text="Location" />
-                  <TableColumn fx:id="contactCol" prefWidth="57.0" text="Contact" />
-                  <TableColumn fx:id="typeCol" prefWidth="71.0" text="Type" />
-                  <TableColumn fx:id="urlCol" prefWidth="61.0" text="URL" />
-                  <TableColumn fx:id="startCol" prefWidth="219.0" text="Start Date/Time" />
-                  <TableColumn fx:id="endCol" prefWidth="199.0" text="End Date/Time" />
+                  <TableColumn fx:id="locationCol" prefWidth="102.0" text="Location" />
+                  <TableColumn fx:id="contactCol" prefWidth="73.0" text="Contact" />
+                  <TableColumn fx:id="typeCol" prefWidth="119.0" text="Type" />
+                  <TableColumn fx:id="urlCol" prefWidth="45.0" text="URL" />
+                  <TableColumn fx:id="dateCol" prefWidth="150.0" text="Date" />
+                  <TableColumn fx:id="startCol" prefWidth="91.0" text="Start Time" />
+                  <TableColumn fx:id="endCol" prefWidth="101.0" text="End Time" />
               </columns>
             </TableView>
             <Label layoutX="431.0" layoutY="6.0" text="Current Appointments" textFill="WHITE">

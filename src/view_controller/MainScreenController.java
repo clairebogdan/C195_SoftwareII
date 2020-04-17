@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -162,6 +165,13 @@ public class MainScreenController implements Initializable {
                                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
                                                                           "WHERE MONTH(start) = '%s' AND YEAR(start) = '%s' ORDER BY start", monthPicked, yearPicked));
             while (getApptsByMonth.next()) {
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime localStart =  LocalDateTime.parse(getApptsByMonth.getString("start"), format);
+                LocalDateTime localEnd =  LocalDateTime.parse(getApptsByMonth.getString("end"), format);
+                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                String zonedStartString = zonedStart.toString().substring(11,16);
+                String zonedEndString = zonedEnd.toString().substring(11,16);
                 appointmentSchedule.add(new Appointment(getApptsByMonth.getString("appointmentId"), 
                                                         getApptsByMonth.getString("customerName"), 
                                                         getApptsByMonth.getString("title"), 
@@ -169,8 +179,8 @@ public class MainScreenController implements Initializable {
                                                         getApptsByMonth.getString("location"),   
                                                         getApptsByMonth.getString("type"),
                                                         getApptsByMonth.getString("date"),
-                                                        getApptsByMonth.getString("start").substring(11,16),
-                                                        getApptsByMonth.getString("end").substring(11,16)));
+                                                        zonedStartString,
+                                                        zonedEndString));
             }
             mainCalendarTableView.setItems(appointmentSchedule);
             
@@ -199,19 +209,27 @@ public class MainScreenController implements Initializable {
         try {
             appointmentSchedule.clear();
             con = DatabaseConnection.getConnection();
-            ResultSet getApptsByMonth = con.createStatement().executeQuery(String.format("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end " +
+            ResultSet getApptsByWeek = con.createStatement().executeQuery(String.format("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end " +
                                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
                                                                           "WHERE WEEK(DATE(start))+1 = '%s' AND YEAR(start) = '%s' ORDER BY start", weekString, yearPicked));
-            while (getApptsByMonth.next()) {
-                appointmentSchedule.add(new Appointment(getApptsByMonth.getString("appointmentId"), 
-                                                        getApptsByMonth.getString("customerName"), 
-                                                        getApptsByMonth.getString("title"), 
-                                                        getApptsByMonth.getString("description"),
-                                                        getApptsByMonth.getString("location"),   
-                                                        getApptsByMonth.getString("type"),
-                                                        getApptsByMonth.getString("date"),
-                                                        getApptsByMonth.getString("start").substring(11,16),
-                                                        getApptsByMonth.getString("end").substring(11,16)));
+            while (getApptsByWeek.next()) {
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime localStart =  LocalDateTime.parse(getApptsByWeek.getString("start"), format);
+                LocalDateTime localEnd =  LocalDateTime.parse(getApptsByWeek.getString("end"), format);
+                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                String zonedStartString = zonedStart.toString().substring(11,16);
+                String zonedEndString = zonedEnd.toString().substring(11,16);
+
+                appointmentSchedule.add(new Appointment(getApptsByWeek.getString("appointmentId"), 
+                                                        getApptsByWeek.getString("customerName"), 
+                                                        getApptsByWeek.getString("title"), 
+                                                        getApptsByWeek.getString("description"),
+                                                        getApptsByWeek.getString("location"),   
+                                                        getApptsByWeek.getString("type"),
+                                                        getApptsByWeek.getString("date"),
+                                                        zonedStartString,
+                                                        zonedEndString));
             }
             mainCalendarTableView.setItems(appointmentSchedule);
             
@@ -235,6 +253,15 @@ public class MainScreenController implements Initializable {
             ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end\n" +
                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
             while (rs.next()) {
+                
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime localStart =  LocalDateTime.parse(rs.getString("start"), format);
+                LocalDateTime localEnd =  LocalDateTime.parse(rs.getString("end"), format);
+                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                String zonedStartString = zonedStart.toString().substring(11,16);
+                String zonedEndString = zonedEnd.toString().substring(11,16);
+
                 appointmentSchedule.add(new Appointment(rs.getString("appointmentId"), 
                                                         rs.getString("customerName"), 
                                                         rs.getString("title"), 
@@ -242,8 +269,8 @@ public class MainScreenController implements Initializable {
                                                         rs.getString("location"),   
                                                         rs.getString("type"),
                                                         rs.getString("date"),
-                                                        rs.getString("start").substring(11,16),
-                                                        rs.getString("end").substring(11,16)));
+                                                        zonedStartString,
+                                                        zonedEndString));
                 
             }            
             mainCalendarTableView.setItems(appointmentSchedule);
@@ -278,15 +305,7 @@ public class MainScreenController implements Initializable {
         isWeekly = false;
         isMonthly = false;
         viewAll();
-        
-        //Alerts the user if they logged in within 15 minutes of a scheduled appointment
-        if (appointmentInFifteen()) {
-            System.out.println("User alerted");
-        }
-        else {
-            System.out.println("User not alerted of any appointment soon.");
-        }
-          
+
         apptIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         custCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
