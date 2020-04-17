@@ -42,6 +42,8 @@ import static model.Alerts.nothingSearched;
 import static model.Alerts.nothingSelectedtoEdit;
 import model.Appointment;
 import model.Customer;
+import model.LocalDateTime_Interface;
+import static model.TransformTime.UTCtoLDT;
 
 
 public class AddAppointmentController implements Initializable {
@@ -319,6 +321,12 @@ public class AddAppointmentController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
+        LocalDateTime_Interface convert = (String dateTime) -> { //Lambda used to convert the UTC datetime from the database to the user's localdatetime
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+            LocalDateTime ldt =  LocalDateTime.parse(dateTime, format).atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+            return ldt;
+        };
+        
         //set textfields to disabled until Select Customer button is clicked when a customer is selected
         idField.setDisable(true); //ALWAYS
         nameField.setDisable(true); //ALWAYS
@@ -334,8 +342,7 @@ public class AddAppointmentController implements Initializable {
         datePicker.setDisable(true);
         datePicker.getEditor().setEditable(false);
         
-        //Disables past dates and weekends from being selected
-        datePicker.setDayCellFactory(picker -> new DateCell() {
+        datePicker.setDayCellFactory(picker -> new DateCell() { //Lambda used to disable past dates and weekends from being selected
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
                 LocalDate today = LocalDate.now();
@@ -378,11 +385,8 @@ public class AddAppointmentController implements Initializable {
            
             while (rs.next()) {
                 //Convert UTC timestamp from database to user's local datetime
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime localStart =  LocalDateTime.parse(rs.getString("start"), format);
-                LocalDateTime localEnd =  LocalDateTime.parse(rs.getString("end"), format);
-                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedStart = convert.stringToLocalDateTime(rs.getString("start"));
+                LocalDateTime zonedEnd = convert.stringToLocalDateTime(rs.getString("end"));
                 String zonedStartString = zonedStart.toString().substring(11,16);
                 String zonedEndString = zonedEnd.toString().substring(11,16);
 

@@ -7,13 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.stage.Modality;
 import static model.Alerts.appointmentSoon;
+import model.TransformTime;
 import model.User;
 
 public class Query {
@@ -26,6 +23,8 @@ public class Query {
     static ObservableList<String> customersTable = FXCollections.observableArrayList();
     static ObservableList<String> times = FXCollections.observableArrayList();
     static ObservableList<String> reports = FXCollections.observableArrayList();
+    
+    
     
     
 //////////////////////////LOGIN SCREEN FUNCTIONS////////////////////////////////    
@@ -50,9 +49,6 @@ public class Query {
             }
         }
 
-    
-    
-//////////////////////////MAIN SCREEN CALENDAR FUNCTIONS////////////////////////
 
     //Appointment in 15 minutes
     public static boolean appointmentInFifteen() {
@@ -73,10 +69,7 @@ public class Query {
         }
     }
     
-    //Weekly calendar view
-    
-    //Monthly calendar view
-    
+
     
     
     
@@ -222,14 +215,8 @@ public class Query {
             try {
                 
                 //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-                String dateAndStartTime = date + " " + startTime;
-                String dateAndEndTime = date + " " + endTime;
-
-                //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-                LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-
+                LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
+                LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
                 String UTCstart = localStart.toString();
                 String UTCend = localEnd.toString();
 
@@ -256,14 +243,8 @@ public class Query {
             try {
                 
                 //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-                String dateAndStartTime = date + " " + startTime;
-                String dateAndEndTime = date + " " + endTime;
-
-                //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-                LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-
+                LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
+                LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
                 String UTCstart = localStart.toString();
                 String UTCend = localEnd.toString();
 
@@ -303,16 +284,8 @@ public class Query {
     public static void addAppointment(String id, String name, String title, String description, String location, String contact, String type, String url, String date, String startTime, String endTime) throws SQLException {
             
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            String dateAndStartTime = date + " " + startTime;
-            String dateAndEndTime = date + " " + endTime;
-            
-            System.out.println("Original date and start time: " + dateAndStartTime);
-            
-            //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-            LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-          
+            LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
+            LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
             String UTCstart = localStart.toString();
             String UTCend = localEnd.toString();
             
@@ -343,16 +316,8 @@ public class Query {
     public static void editAppointment(String apptId, String custName, String title, String description, String contact, String url, String type, String location, String date, String startTime, String endTime) {
         try {
             //1. Change startTime  (00:00:00) , endTime (00:00:00), and date (YYYY-MM-DD) to "YYYY-MM-DD 00:00:00"
-            String dateAndStartTime = date + " " + startTime;
-            String dateAndEndTime = date + " " + endTime;
-            
-            System.out.println("Chosen for edit date and start time: " + dateAndStartTime);
-            
-            //2. Convert datetime strings to LocalDateTime datatypes WITH UTC zone
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime localStart =  LocalDateTime.parse(dateAndStartTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-            LocalDateTime localEnd =  LocalDateTime.parse(dateAndEndTime, format).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-          
+            LocalDateTime localStart = TransformTime.stringToLDT_UTC(startTime, date);
+            LocalDateTime localEnd = TransformTime.stringToLDT_UTC(endTime, date);
             String UTCstart = localStart.toString();
             String UTCend = localEnd.toString();
             

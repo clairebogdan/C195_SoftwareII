@@ -1,7 +1,6 @@
 package view_controller;
 
 import database.DatabaseConnection;
-import static database.Query.appointmentInFifteen;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -34,6 +33,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import static model.Alerts.noResults;
 import model.Appointment;
+import model.LocalDateTime_Interface;
+import static model.TransformTime.UTCtoLDT;
 import model.User;
 
 
@@ -63,6 +64,11 @@ public class MainScreenController implements Initializable {
     
     ObservableList<Appointment> appointmentSchedule = FXCollections.observableArrayList();
     
+    LocalDateTime_Interface convert = (String dateTime) -> { //Lambda used to convert the UTC datetime from the database to the user's localdatetime
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+            LocalDateTime ldt =  LocalDateTime.parse(dateTime, format).atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+            return ldt;
+    };
     
     
     
@@ -165,11 +171,8 @@ public class MainScreenController implements Initializable {
                                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
                                                                           "WHERE MONTH(start) = '%s' AND YEAR(start) = '%s' ORDER BY start", monthPicked, yearPicked));
             while (getApptsByMonth.next()) {
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime localStart =  LocalDateTime.parse(getApptsByMonth.getString("start"), format);
-                LocalDateTime localEnd =  LocalDateTime.parse(getApptsByMonth.getString("end"), format);
-                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedStart = convert.stringToLocalDateTime(getApptsByMonth.getString("start"));
+                LocalDateTime zonedEnd = convert.stringToLocalDateTime(getApptsByMonth.getString("end"));
                 String zonedStartString = zonedStart.toString().substring(11,16);
                 String zonedEndString = zonedEnd.toString().substring(11,16);
                 appointmentSchedule.add(new Appointment(getApptsByMonth.getString("appointmentId"), 
@@ -213,11 +216,8 @@ public class MainScreenController implements Initializable {
                                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId " +
                                                                           "WHERE WEEK(DATE(start))+1 = '%s' AND YEAR(start) = '%s' ORDER BY start", weekString, yearPicked));
             while (getApptsByWeek.next()) {
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime localStart =  LocalDateTime.parse(getApptsByWeek.getString("start"), format);
-                LocalDateTime localEnd =  LocalDateTime.parse(getApptsByWeek.getString("end"), format);
-                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedStart = convert.stringToLocalDateTime(getApptsByWeek.getString("start"));
+                LocalDateTime zonedEnd = convert.stringToLocalDateTime(getApptsByWeek.getString("end"));
                 String zonedStartString = zonedStart.toString().substring(11,16);
                 String zonedEndString = zonedEnd.toString().substring(11,16);
 
@@ -253,12 +253,8 @@ public class MainScreenController implements Initializable {
             ResultSet rs = con.createStatement().executeQuery("SELECT appointmentId, customerName, title, description, location, type, DATE(start) date, start, end\n" +
                                                           "FROM customer c INNER JOIN appointment a ON c.customerId = a.customerId ORDER BY start;");
             while (rs.next()) {
-                
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime localStart =  LocalDateTime.parse(rs.getString("start"), format);
-                LocalDateTime localEnd =  LocalDateTime.parse(rs.getString("end"), format);
-                LocalDateTime zonedStart = localStart.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime zonedEnd = localEnd.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime zonedStart = convert.stringToLocalDateTime(rs.getString("start"));
+                LocalDateTime zonedEnd = convert.stringToLocalDateTime(rs.getString("end"));
                 String zonedStartString = zonedStart.toString().substring(11,16);
                 String zonedEndString = zonedEnd.toString().substring(11,16);
 
