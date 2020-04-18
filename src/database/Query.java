@@ -5,13 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import static model.Alerts.appointmentSoon;
@@ -26,7 +23,7 @@ public class Query {
     static ObservableList<String> types = FXCollections.observableArrayList();
     static ObservableList<String> customersTable = FXCollections.observableArrayList();
     static ObservableList<String> times = FXCollections.observableArrayList();
-    static ObservableList<String> reports = FXCollections.observableArrayList();
+    
     
     
     
@@ -381,185 +378,4 @@ public class Query {
             System.out.println("Error editing appointment: " + e.getMessage());
         }
     }
-    
-        
-    
-/////////////////////////////REPORT SCREEN FUNCTIONS////////////////////////////
-    
-    //Fills combo box for report types
-    public static ObservableList<String> getReports() {
-        reports.removeAll(reports); //prevents types from copying themselves to the list
-        reports.add("Appointment Types by Month");
-        reports.add("Schedule for Consultant");
-        reports.add("Appointments per Month");
-        return reports;
-    }
-    
-    
-    
-    //Generates report: number of appointment types by month 
-    public static String reportApptTypesByMonth(){
-        try {
-            
-            ObservableList<String> report1 = FXCollections.observableArrayList();
-            
-            //Header, also a container to be appended to
-            StringBuilder report1text = new StringBuilder();
-            report1text.append("Month    | # of each Type  \n______________________________________________________________________\n");
-            
-            //Get Month, Type, and Amount
-            ResultSet rs = conn.createStatement().executeQuery(String.format("SELECT MONTHNAME(start) as Month, type, COUNT(*) as Amount\n" +
-                                                                                        "FROM appointment GROUP BY MONTH(start), type;"));
-            while (rs.next()) {
-                report1text.append(rs.getString("Month") + "          " + rs.getString("Amount") + "   " + rs.getString("type") + "\n");
-            }
-
-            return report1text.toString();
-            
-        } catch (Exception e) {
-            System.out.println("Error getting report: " + e.getMessage());
-            return "Didn't work"; 
-        }
-        
-    }
-    
-    
-    
-    //Generates report: the schedule for consultant 
-    public static String reportConsultantSchedule() {
-        try {
-            
-            //Header, also a container for where all text will be appended
-            String text = "Consultant " + User.getCurrentUsername() + "'s Schedule\n_______________________________________________________________________________________________\n" +
-                    "Date                Start       End           Appointment Info\n_______________________________________________________________________________________________\n";
-            
-            //Containers for month strings
-            ObservableList<String> report2 = FXCollections.observableArrayList();
-            
-            //SQL statement to get the start date/time
-            ResultSet getSchedule = conn.createStatement().executeQuery(String.format("SELECT start, end, customerName, title, description, type, location "
-                                                                                    + "FROM appointment a INNER JOIN customer c ON a.customerId=c.customerId WHERE userId='%s' ORDER BY start;", User.getCurrentUserid()));
-            
-            //Transform the data by extracting only the numerical month MM (like 01)
-            while (getSchedule.next()) {
-                String date = getSchedule.getString("start").substring(0,10);
-                String start = getSchedule.getString("start").substring(11,16);
-                String end = getSchedule.getString("end").substring(11,16);
-                String name = getSchedule.getString("customerName");
-                String title = getSchedule.getString("title");
-                String description = getSchedule.getString("description");
-                String type = getSchedule.getString("type");
-                String location = getSchedule.getString("location");
-                    report2.add(date + "\t" + start + "\t" + end + "\t" + name + "     " + title + "     " + description + "     " +  type + "     " +  location);   
-            }
-            
-            for (int i = 0; i < report2.size(); i++) {
-                text = text + report2.get(i) + "\n\n";
-            }
-
-            return text;
- 
-        } catch (Exception e) {
-            System.out.println("Error getting report: " + e.getMessage());
-            return "Didn't work";
-        }
-    }
-    
-    //Generates report: number of appointments per month (one additional report of your choice)
-    public static String reportApptsPerMonth() {
-        try {
-            
-            //Header, also a container for where all text will be appended
-            String text = "Month - Number of Appointments\n___________________________________\n";
-            
-            //Containers for month strings
-            ObservableList<String> report3 = FXCollections.observableArrayList();
-            ObservableList<String> Jan = FXCollections.observableArrayList();
-            ObservableList<String> Feb = FXCollections.observableArrayList();
-            ObservableList<String> Mar = FXCollections.observableArrayList();
-            ObservableList<String> Apr = FXCollections.observableArrayList();
-            ObservableList<String> May = FXCollections.observableArrayList();
-            ObservableList<String> Jun = FXCollections.observableArrayList();
-            ObservableList<String> Jul = FXCollections.observableArrayList();
-            ObservableList<String> Aug = FXCollections.observableArrayList();
-            ObservableList<String> Sept = FXCollections.observableArrayList();
-            ObservableList<String> Oct = FXCollections.observableArrayList();
-            ObservableList<String> Nov = FXCollections.observableArrayList();
-            ObservableList<String> Dec = FXCollections.observableArrayList();
-            
-            //SQL statement to get the start date/time
-            ResultSet getMonth = conn.createStatement().executeQuery(String.format("SELECT start FROM appointment;"));
-            
-            //Transform the data by extracting only the numerical month MM (like 01)
-            while (getMonth.next()) {
-                String monthNum = getMonth.getString("start").substring(5,7);
-                report3.add(monthNum);   
-            }
-            
-            //Add data to month containers depending on the numerical month MM
-            for (int i = 0; i < report3.size(); i++) {
-                switch (report3.get(i)) {
-                    case "01":
-                        Jan.add(report3.get(i));
-                        break;
-                    case "02":
-                        Feb.add(report3.get(i));
-                        break;
-                    case "03":
-                        Mar.add(report3.get(i));
-                        break;
-                    case "04":
-                        Apr.add(report3.get(i));
-                        break;
-                    case "05":
-                        May.add(report3.get(i));
-                        break;
-                    case "06":
-                        Jun.add(report3.get(i));
-                        break;
-                    case "07":
-                        Jul.add(report3.get(i));
-                        break;
-                    case "08":
-                        Aug.add(report3.get(i));
-                        break;
-                    case "09":
-                        Sept.add(report3.get(i));
-                        break;
-                    case "10":
-                        Oct.add(report3.get(i));
-                        break;
-                    case "11":
-                        Nov.add(report3.get(i));
-                        break;
-                    case "12":
-                        Dec.add(report3.get(i));
-                        break;
-                    default:
-                        System.out.println("Date didn't make sense " + report3.get(i));   
-                } 
-            }
-            
-            //Append the printout text
-            text = text + 
-                    "January - " + Jan.size() + "\n" +
-                    "February - " + Feb.size() + "\n" +
-                    "March - " + Mar.size() + "\n" +
-                    "April - " + Apr.size() + "\n" +
-                    "May - " + May.size() + "\n" +
-                    "June - " + Jun.size() + "\n" +
-                    "July - " + Jul.size() + "\n" +
-                    "August - " + Aug.size() + "\n" +
-                    "September - " + Sept.size() + "\n" +
-                    "October - " + Oct.size() + "\n" +
-                    "November - " + Nov.size() + "\n" +
-                    "December - " + Dec.size() + "\n";                      
-            
-            return text; 
-            
-        } catch (Exception e) {
-            System.out.println("Error getting report: " + e.getMessage());
-            return "Didn't work";
-        }
-    }        
 }
