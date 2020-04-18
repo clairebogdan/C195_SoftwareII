@@ -7,7 +7,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.sql.Statement;
 
 
 //Claire Bogdan
@@ -27,7 +26,6 @@ public class Appointment_Management_System extends Application {
     
     
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        DatabaseConnection.makeConnection();
         launch(args);
         DatabaseConnection.closeConnection();
     }

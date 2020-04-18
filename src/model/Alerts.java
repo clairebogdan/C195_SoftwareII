@@ -140,16 +140,7 @@ public class Alerts {
         alert.setContentText(message);  
         alert.showAndWait();
    }
-   
-   public static void appointmentOverlap() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.initModality(Modality.NONE);
-        alert.setTitle("Appointment Overlap");
-        alert.setHeaderText("Appointment Overlap Error!");
-        alert.setContentText("CANNOT SAVE: Appointment start and/or end time(s) overlap with an existing appointment on your selected date.");  
-        alert.showAndWait();
-   }
-   
+
    public static void noResults(String s) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.initModality(Modality.NONE);
@@ -158,7 +149,4 @@ public class Alerts {
         alert.setContentText("There are no appointments for the " + s + " you selected.");  
         alert.showAndWait();
     }
-   
-   
-   
 }

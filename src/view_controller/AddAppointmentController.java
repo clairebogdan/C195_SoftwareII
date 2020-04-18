@@ -421,6 +421,5 @@ public class AddAppointmentController implements Initializable {
             endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
             
             appointmentTableView.setItems(currApptTable);
-            System.out.println("User timezone: " + ZoneId.systemDefault());
     }    
 }

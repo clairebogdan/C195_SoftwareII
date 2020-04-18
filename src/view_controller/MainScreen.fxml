@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.MainScreenController">
+<AnchorPane id="AnchorPane" prefHeight="560.0" prefWidth="800.0" style="-fx-background-color: #355C7D #355C7D;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view_controller.MainScreenController">
    <children>
       <Label fx:id="mainScreenLabel" layoutX="245.0" layoutY="33.0" text="Appointment Management System" textFill="WHITE">
          <font>
@@ -26,7 +26,7 @@
          <font>
             <Font size="10.0" />
          </font></Button>
-      <AnchorPane layoutY="164.0" prefHeight="336.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
+      <AnchorPane layoutY="195.0" prefHeight="366.0" prefWidth="800.0" style="-fx-background-color: #ABABAB;">
          <children>
             <Label layoutX="6.0" layoutY="28.0" text="Appointment Schedule" textFill="WHITE" underline="true">
                <font>
@@ -37,8 +37,13 @@
             <RadioButton fx:id="weeklyRadio" layoutX="272.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleWeeklyRadio" text="View by Week" textFill="WHITE" />
             <RadioButton fx:id="monthlyRadio" layoutX="416.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleMonthlyRadio" text="View by Month" textFill="WHITE" />
             <RadioButton fx:id="allRadio" layoutX="560.0" layoutY="33.0" mnemonicParsing="false" onAction="#handleAllRadio" text="View All" textFill="WHITE" />
+            <Label fx:id="timeZoneLabel" layoutX="618.0" layoutY="67.0" text="Time Zone: ">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
          </children></AnchorPane>
-      <TableView fx:id="mainCalendarTableView" layoutX="5.0" layoutY="229.0" prefHeight="267.0" prefWidth="790.0">
+      <TableView fx:id="mainCalendarTableView" layoutX="5.0" layoutY="286.0" prefHeight="267.0" prefWidth="790.0">
         <columns>
           <TableColumn fx:id="apptIdCol" prefWidth="53.0" text="Appt ID" />
           <TableColumn fx:id="custCol" prefWidth="107.0" text="Customer" />

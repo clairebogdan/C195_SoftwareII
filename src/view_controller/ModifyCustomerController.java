@@ -195,7 +195,7 @@ public class ModifyCustomerController implements Initializable {
                 } 
                 else {}
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             String s = "a customer";
             nothingSelectedtoDelete(s);
         }
@@ -282,7 +282,7 @@ public class ModifyCustomerController implements Initializable {
             else {
                 blankFieldError("Address Line 2", "modify", "a customer");
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             blankFieldError("Address Line 2", "modify", "a customer");
         }
     }

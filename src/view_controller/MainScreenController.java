@@ -25,6 +25,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -34,13 +35,15 @@ import javafx.stage.Stage;
 import static model.Alerts.noResults;
 import model.Appointment;
 import model.LocalDateTime_Interface;
+import model.TimeZone_Interface;
 import model.User;
 
 
 public class MainScreenController implements Initializable {
 
     //Define parts of the screen
-      
+    
+    @FXML private Label timeZoneLabel;
     @FXML private RadioButton weeklyRadio;
     @FXML private RadioButton monthlyRadio;
     @FXML private RadioButton allRadio;
@@ -74,9 +77,10 @@ public class MainScreenController implements Initializable {
     //Define actions for pressed buttons
     
     //go back to Login Screen
-    @FXML private void handleLogoutButton (ActionEvent event) throws IOException {
+    @FXML private void handleLogoutButton (ActionEvent event) throws IOException, ClassNotFoundException, SQLException {
         User.setCurrentUserid(null);
         User.setCurrentUsername(null);
+        DatabaseConnection.closeConnection();
         
         System.out.println("LOGGED OUT!");
         Parent parent = FXMLLoader.load(getClass().getResource("/view_controller/LoginScreen.fxml"));
@@ -300,7 +304,15 @@ public class MainScreenController implements Initializable {
         isWeekly = false;
         isMonthly = false;
         viewAll();
+        
+        //Show user their timezone
+        TimeZone_Interface display = () -> "Your Time Zone: " + ZoneId.systemDefault().toString(); //Lambda expression that assists in changing the label to show the user's timezone
+        
+        timeZoneLabel.setText(display.getUserTZ());
 
+        
+        
+        
         apptIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         custCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));

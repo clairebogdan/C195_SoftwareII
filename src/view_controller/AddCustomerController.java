@@ -29,7 +29,6 @@ import static model.Alerts.blankFieldError;
 import static model.Alerts.blankFieldMessage;
 import static model.Alerts.customerAdded;
 import static model.Alerts.fieldEntryError;
-import static model.Alerts.showException;
 import model.Customer;
 
 

@@ -71,18 +71,19 @@ public class ReportsController implements Initializable {
         
         String chosenReport = reportChoiceBox.getValue().toString();
         
-        if (chosenReport.equals("Appointment Types by Month")) {
+        switch (chosenReport) {
+            case "Appointment Types by Month":
                 textAreaForReports.setText(reportApptTypesByMonth());
-        }
-        else if (chosenReport.equals("Schedule for Consultant")) {
-            textAreaForReports.setText(reportConsultantSchedule());
-        }
-        else if (chosenReport.equals("Appointments per Month")) {
-            textAreaForReports.setText(reportApptsPerMonth());
-        }
-        
-        
-        
+                break;
+            case "Schedule for Consultant":
+                textAreaForReports.setText(reportConsultantSchedule());
+                break;
+            case "Appointments per Month":
+                textAreaForReports.setText(reportApptsPerMonth());
+                break;
+            default:
+                break;
+        }                     
     }
     
     //reset everything on Reports screen
@@ -94,6 +95,8 @@ public class ReportsController implements Initializable {
         generateReportButton.setDisable(false);
         
     }
+    
+    
     
     //Fills combo box for report types
     public static ObservableList<String> getReports() {
@@ -203,27 +206,11 @@ public class ReportsController implements Initializable {
         }
     }        
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         resetButton.setDisable(true);
         reportChoiceBox.setItems(getReports());
-    }    
-    
+    }       
 }

@@ -42,7 +42,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import static model.Alerts.appointmentDeleted;
 import static model.Alerts.appointmentEdited;
-import static model.Alerts.appointmentOverlap;
 import static model.Alerts.appointmentTimeIssue;
 import static model.Alerts.blankFieldError;
 import static model.Alerts.nothingSearched;
@@ -429,8 +428,6 @@ public class ModifyAppointmentController implements Initializable {
             startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
             endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
             
-            appointmentTableView.setItems(appointmentTable); 
-            
-    }    
-    
+            appointmentTableView.setItems(appointmentTable);          
+    }      
 }

@@ -1,8 +1,5 @@
 package model;
 
-//This class establishes the user that is logged in and saves its username and userId.
-//Implemented in the LoginScreenController and Query class.
-
 public class User {
     
     private static String currentUsername;
@@ -33,10 +30,7 @@ public class User {
 
     public static String getCurrentUserid() {
         return currentUserid;
-    }
-    
-    
-    
+    }   
 }
     
      

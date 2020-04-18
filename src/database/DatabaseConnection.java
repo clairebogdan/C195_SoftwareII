@@ -13,7 +13,7 @@ public class DatabaseConnection {
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static Connection conn;
     
-    //initial startup
+
     public static void makeConnection() throws ClassNotFoundException, SQLException {
         
         Class.forName(JDBC_DRIVER);
@@ -22,7 +22,7 @@ public class DatabaseConnection {
     }
     
     
-    //used to populate customer table
+
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
         return connection;

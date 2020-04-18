@@ -1,16 +1,12 @@
 package model;
 
-import javafx.collections.ObservableList;
-
-
 public class Customer {
     
     String id, name, address, address2, city, zip, country, phone;
     
     public Customer() {}
 
-    
-    
+
     //Used for Add Customer (includes all required Strings)
     public Customer(String id, String name, String address, String address2, String city, String zip, String country, String phone) {
         this.id = id;
