@@ -235,7 +235,7 @@ public class Query {
         LocalTime enteredStart = LocalTime.parse(UTCstart);
         LocalTime enteredEnd = LocalTime.parse(UTCend);
         LocalTime openingHour = LocalTime.parse("08:59");
-        LocalTime closingHour = LocalTime.parse("16:59");
+        LocalTime closingHour = LocalTime.parse("17:01");
         Boolean startTimeAllowed = enteredStart.isAfter(openingHour);
         Boolean endTimeAllowed = enteredEnd.isBefore(closingHour);
         
@@ -298,12 +298,15 @@ public class Query {
                            "OR ('%s' <= end AND '%s' >= end)",
                            UTCstart, UTCstart, UTCend, UTCend, UTCstart, UTCend, UTCstart, UTCend));
                 getOverlap.next();
+                
                 String checkStart = getOverlap.getString("start").substring(0,16);
                 String checkUTCstart = UTCstart.replace('T', ' ');
                 String checkEnd = getOverlap.getString("end").substring(0,16);
                 String checkUTCend = UTCend.replace('T', ' ');
-                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId) && checkStart.equals(checkUTCstart) || checkEnd.equals(checkUTCend)) {
-                            System.out.println("A time wasn't changed. Save over self: " + getOverlap.getString("customerName"));
+                
+
+                    if (getOverlap.getString("customerName").equals(name) && getOverlap.getString("appointmentId").equals(apptId)){
+                            System.out.println("Only conflicting appointment is your own. Save over self: " + getOverlap.getString("customerName"));
                             return true;
                     }
                     else {
@@ -311,7 +314,7 @@ public class Query {
                         System.out.println(getOverlap.getString("customerName") + " " + name + " " + getOverlap.getString("appointmentId") + " " + apptId + " "  + checkStart + " " + checkUTCstart + " " + checkEnd + " " + checkUTCend);
                         return false;
                     }
-                
+
             } catch (SQLException e) {
                 //SQL returned a null set, meaning the appointment can be made here
                 return true;
